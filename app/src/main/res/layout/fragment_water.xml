@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+
+    <!-- 主要内容区域：替换为ScrollView，实现整体滑动 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"> <!-- 关键属性：让子布局填充满ScrollView -->
+
+        <!-- ScrollView的直接子布局：必须是单一布局，设为wrap_content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="80dp">
+
+            <!-- 今日饮水目标卡片 -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+                <!-- 底层：渐变背景卡片 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#F5F5F5"
+                    app:cardElevation="4dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:background="@drawable/water_1_goal_bg"
+                        android:orientation="vertical" />
+                </androidx.cardview.widget.CardView>
+                <!-- 上层：半透明卡片 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="56dp"
+                    app:cardBackgroundColor="#40FFFFFF"
+                    android:alpha="0.99"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="8dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+                        <!-- 左侧内容区域 -->
+                        <LinearLayout
+                            android:layout_width="150dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <!-- 龙吸水标题 -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="龙吸水"
+                                android:fontFamily="@font/dragon"
+                                android:textColor="#E8E8E8"
+                                android:textSize="32sp"
+                                android:textStyle="bold" />
+                            
+                            <!-- 今日饮水目标标题 -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Water intake goal"
+                                android:textColor="#E8E8E8"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="24dp" />
+                            
+                            <!-- 目标设置区域 -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="-8dp">
+                              <LinearLayout
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:orientation="horizontal"
+                                  android:background="@drawable/water_1_goal_bt"
+                                  android:gravity="center_vertical">
+                                  
+                                  <EditText
+                                      android:id="@+id/et_goal_input"
+                                      android:layout_width="wrap_content"
+                                      android:layout_height="match_parent"
+                                      android:background="@null"
+                                      android:text="2500"
+                                      android:textColor="#E8E8E8"
+                                      android:textSize="40sp"
+                                      android:textStyle="bold"
+                                      android:inputType="number"
+                                      android:gravity="center_vertical|center_horizontal"
+                                      />
+                                  <TextView
+                                      android:layout_width="wrap_content"
+                                      android:layout_height="match_parent"
+                                      android:text="ml"
+                                      android:textStyle="bold"
+                                      android:fontFamily="@font/ml"
+                                      android:textColor="#E8E8E8"
+                                      android:textSize="32sp"
+                                      android:gravity="center_vertical"
+                                      android:paddingLeft="4dp"/>
+                              </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                        
+                        <!-- 右侧：圆形进度View -->
+                        <RelativeLayout
+                            android:id="@+id/progressContainer"
+                            android:layout_width= "140dp"
+                            android:layout_height="140dp"
+                            android:layout_weight="1"
+                            android:gravity="end">
+                            <com.example.food.ui.water.WaterCircleProgressView
+                                android:id="@+id/waterProgressView"
+                                android:layout_width= "120dp"
+                                android:layout_height="120dp"
+                                android:layout_centerInParent="true"
+                                app:maxProgress="2000"
+                                app:waterBgColor="#F3F3F3"
+                                app:waterProgressColor="#376AF3"
+                                app:borderColor="#EAECEF"
+                                app:borderWidth="4dp" />
+                            <!-- 底层装饰图片：dragon_circle.png -->
+                            <ImageView
+                                android:id="@+id/img_dragon_circle"
+                                android:layout_width= "140dp"
+                                android:layout_height="140dp"
+                                android:layout_centerInParent="true"
+                                android:src="@drawable/water_1_goal_dragon_circle"
+                                app:tint="#E3FD3E"/>
+                            <!-- 上层主要图片：dragon.png -->
+                            <ImageView
+                                android:id="@+id/img_dragon"
+                                android:layout_width= "130dp"
+                                android:layout_height="130dp"
+                                android:layout_centerInParent="true"
+                                android:src="@drawable/water_1_goal_dragon"
+                                app:tint="#EEEFF1"/>
+                        </RelativeLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+                
+            </FrameLayout>
+            <!-- 添加喝水记录区域：保持不变 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Water record"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- 快速选择按钮 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+                        <Button
+                            android:id="@+id/btn_150ml"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:background="@drawable/water_2_add_quick_bt"
+                            app:backgroundTint="@null"
+                            android:text="150"
+                            android:textColor="#1A1A1A"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:padding="0dp"/>
+                        <Button
+                            android:id="@+id/btn_300ml"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:background="@drawable/water_2_add_quick_bt"
+                            app:backgroundTint="@null"
+                            android:text="300"
+                            android:textColor="#1A1A1A"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:padding="0dp"/>
+                        <Button
+                            android:id="@+id/btn_500ml"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:background="@drawable/water_2_add_quick_bt"
+                            app:backgroundTint="@null"
+                            android:text="500"
+                            android:textColor="#1A1A1A"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:padding="0dp"/>
+                        <Button
+                            android:id="@+id/btn_1000ml"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:background="@drawable/water_2_add_quick_bt"
+                            app:backgroundTint="@null"
+                            android:text="1000"
+                            android:textColor="#1A1A1A"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:padding="0dp"/>
+                    </LinearLayout>
+
+                    <!-- 自定义输入区域 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <EditText
+                            android:id="@+id/et_custom_amount"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginRight="8dp"
+                            android:background="@drawable/water_2_add_edittext"
+                            android:hint="输入饮水量..."
+                            android:inputType="number"
+                            android:paddingHorizontal="12dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
+                        <Button
+                            android:id="@+id/btn_confirm"
+                            android:layout_width="60dp"
+                            android:layout_height="32dp"
+                            android:layout_marginLeft="8dp"
+                            android:background="@drawable/water_2_add_bt"
+                            app:backgroundTint="@null"
+                            android:text="Add"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:padding="0dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 日历卡片 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    
+                    <!-- 日历头部：年月显示和切换按钮 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="32dp">
+                        <TextView
+                            android:id="@+id/tv_current_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="2025年8月"
+                            android:textColor="#000000"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <Button
+                                android:id="@+id/btn_prev_week"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_marginRight="2dp"
+                                android:background="@drawable/water_3_calendar_ic_left"
+                                app:backgroundTint="@null" />
+
+                            <Button
+                                android:id="@+id/btn_next_week"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/water_3_calendar_ic_right"
+                                app:backgroundTint="@null" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    
+                    <!-- 星期标题 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="一"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="center" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="二"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="center" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="三"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="center" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="四"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="center" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="五"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="center" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="六"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="center" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="日"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="center" />
+                    </LinearLayout>
+                    
+                    <!-- 日历网格 -->
+                    <GridView
+                        android:id="@+id/gv_calendar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:numColumns="7"
+                        android:verticalSpacing="8dp"
+                        android:horizontalSpacing="8dp"
+                        android:stretchMode="columnWidth"
+                        android:minHeight="120dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            
+            <!-- 今日饮水记录：通过layout_weight占满剩余空间，确保RecyclerView正常显示 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="今日饮水记录"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:background="#4154CB"
+                        android:gravity="center"
+                        android:paddingVertical="12dp" />
+
+                    <!-- 饮水记录列表：保持不变 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_water"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:padding="16dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--water    -->
+    <declare-styleable name="WaterCircleProgressView">
+        <attr name="maxProgress" format="float" />
+        <attr name="waterBgColor" format="color" />
+        <attr name="waterProgressColor" format="color" />
+        <attr name="borderColor" format="color" />
+        <attr name="borderWidth" format="dimension" />
+    </declare-styleable>
+<!--home_卡路里-->
+    <declare-styleable name="CalorieCircleView">
+        <!-- 基础属性 -->
+        <attr name="calorieBgColor" format="color" />
+        <attr name="calorieProgressColor" format="color" />
+        <attr name="textColor" format="color" />
+        <attr name="strokeWidth" format="dimension" />
+        <attr name="maxCalories" format="integer" />
+        <attr name="animationDuration" format="integer" />
+
+        <!-- 发光效果属性 -->
+        <attr name="glowEnabled" format="boolean" />
+        <attr name="glowRadius" format="dimension" />
+        <attr name="glowColor" format="color" />
+
+        <!-- 毛玻璃效果属性 -->
+        <attr name="frostedEnabled" format="boolean" />
+        <attr name="frostedAlpha" format="float" />
+        <attr name="frostedColor" format="color" />
+        <attr name="frostedBlur" format="dimension" />
+    </declare-styleable>
+</resources>

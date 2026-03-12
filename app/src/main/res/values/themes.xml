@@ -1,0 +1,24 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.Food" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorSecondary">@color/mint_primary</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.Food.MaterialCalendar</item>
+    </style>
+
+    <style name="Theme.Food" parent="Base.Theme.Food" />
+
+    <style name="ThemeOverlay.Food.MaterialCalendar" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/home_surface</item>
+        <item name="colorOnSurface">@color/home_text_primary</item>
+        <item name="colorSurfaceContainerHigh">@color/home_surface</item>
+        <item name="android:windowBackground">@color/home_surface</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Food.MediumRound</item>
+    </style>
+
+    <style name="ShapeAppearance.Food.MediumRound" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerSize">16dp</item>
+    </style>
+</resources>

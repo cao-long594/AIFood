@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 顶部标题区域 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/meal_type_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Food database"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/foodbank_add_food_ic"
+                android:contentDescription="食物图标" />
+        </LinearLayout>
+
+        <!-- 卡片容器 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- 食物名称 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="#E0E0E0"
+                    app:boxBackgroundColor="#FAFAFA"
+                    app:hintTextColor="#666666"
+                    app:placeholderText="请输入食物名称">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_food_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:textSize="16sp"
+                        android:textColor="#1A1A1A"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- 营养信息网格布局 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nutrition"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A"
+                    android:layout_marginBottom="12dp" />
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:rowCount="4"
+                    android:columnWidth="0dp"
+                    android:alignmentMode="alignBounds">
+
+                    <!-- 卡路里 -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#E0E0E0"
+                        app:boxBackgroundColor="#FAFAFA"
+                        app:hintTextColor="#666666"
+                        app:placeholderText="0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_calories"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:textSize="16sp"
+                            android:textColor="#1A1A1A"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:hint="卡路里" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- 碳水化合物 -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#E0E0E0"
+                        app:boxBackgroundColor="#FAFAFA"
+                        app:hintTextColor="#666666"
+                        app:placeholderText="0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_carbs"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:textSize="16sp"
+                            android:textColor="#1A1A1A"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:hint="碳水化合物" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- 蛋白质 -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#E0E0E0"
+                        app:boxBackgroundColor="#FAFAFA"
+                        app:hintTextColor="#666666"
+                        app:placeholderText="0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_protein"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:textSize="16sp"
+                            android:textColor="#1A1A1A"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:hint="蛋白质" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- 脂肪 -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#E0E0E0"
+                        app:boxBackgroundColor="#FAFAFA"
+                        app:hintTextColor="#666666"
+                        app:placeholderText="0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_fat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:textSize="16sp"
+                            android:textColor="#1A1A1A"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:hint="脂肪" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </GridLayout>
+
+                <!-- 详细脂肪信息 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fat Details"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- 饱和脂肪 -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#E0E0E0"
+                        app:boxBackgroundColor="#FAFAFA"
+                        app:hintTextColor="#666666"
+                        app:placeholderText="0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_saturated_fat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:textSize="16sp"
+                            android:textColor="#1A1A1A"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:hint="饱和脂肪 (g)" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- 单不饱和脂肪 -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#E0E0E0"
+                        app:boxBackgroundColor="#FAFAFA"
+                        app:hintTextColor="#666666"
+                        app:placeholderText="0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_mono_unsaturated_fat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:textSize="16sp"
+                            android:textColor="#1A1A1A"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:hint="单不饱和脂肪 (g)" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- 多不饱和脂肪 -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#E0E0E0"
+                        app:boxBackgroundColor="#FAFAFA"
+                        app:hintTextColor="#666666"
+                        app:placeholderText="0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_poly_unsaturated_fat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:textSize="16sp"
+                            android:textColor="#1A1A1A"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:hint="多不饱和脂肪 (g)" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- 计量单位卡片 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="计量单位"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A"
+                    android:layout_marginBottom="12dp" />
+
+                <RadioGroup
+                    android:id="@+id/rg_unit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+                    <RadioButton
+                        android:id="@+id/rb_gram"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="克 (g)"
+                        android:checked="true"
+                        android:layout_marginEnd="24dp"
+                        app:buttonTint="@null"
+                        android:buttonTint="@drawable/foodbank_add_food_selected"/>
+                    <RadioButton
+                        android:id="@+id/rb_milliliter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="毫升 (ml)"
+                        app:buttonTint="@null"
+                        android:buttonTint="@drawable/foodbank_add_food_selected"/>
+                </RadioGroup>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- 按钮区域 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="0.38"
+                android:text="Cancel"
+                android:textSize="16sp"
+                android:textColor="#666666"
+                app:cornerRadius="24dp"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="2dp"
+                app:backgroundTint="#00000000"
+                 />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="Save"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+
+                app:cornerRadius="24dp"
+                app:backgroundTint="#FD00FD"
+                 />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

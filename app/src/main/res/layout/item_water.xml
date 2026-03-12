@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="8dp"
+    android:gravity="center_vertical">
+
+    <!-- 水滴图标 -->
+    <TextView
+    android:layout_width="28dp"
+    android:layout_height="28dp"
+    android:gravity="center"
+    android:text="💧"
+    android:textSize="20sp"
+    android:layout_marginRight="16dp"  />
+
+    <!-- 时间文本 -->
+    <TextView
+        android:id="@+id/tv_water_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:text="07:38" />
+
+    <!-- 水量文本 -->
+    <TextView
+        android:id="@+id/tv_water_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#51CEE2"
+        android:textStyle="bold"
+        android:text="180ml" />
+
+</LinearLayout>

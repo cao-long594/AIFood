@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Food</string>
+    <string name="home_title">营养日记</string>
+    <string name="home_calorie_card_label">今日热量摄入</string>
+    <string name="home_nutrient_distribution_title">营养素分布</string>
+    <string name="home_nutrient_distribution_subtitle">查看蛋白质、碳水和脂肪的摄入结构</string>
+    <string name="home_macro_calorie_title">营养素热量分布</string>
+    <string name="home_macro_calorie_subtitle">按热量占比查看三大营养素贡献</string>
+    <string name="home_completion_label">目标达成</string>
+    <string name="home_protein">蛋白质</string>
+    <string name="home_carb">碳水</string>
+    <string name="home_fat">脂肪</string>
+</resources>

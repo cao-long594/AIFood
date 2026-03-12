@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="primary_color">#7241F2</color>
+    <color name="secondary_color">#F1F2F6</color>
+    <color name="accent_color">#F45805</color>
+
+    <color name="mint_primary">#00B75E</color>
+    <color name="mint_secondary">#7ADEB8</color>
+    <color name="mint_accent">#6531FF</color>
+
+    <color name="orange_primary">#F45805</color>
+    <color name="orange_secondary">#F5F5F5</color>
+    <color name="orange_accent">#E34607</color>
+
+    <color name="dark_background">#131518</color>
+    <color name="light_background">#FFFFFF</color>
+
+    <color name="saturated_fat">#F87171</color>
+    <color name="mono_unsaturated_fat">#FBBF24</color>
+    <color name="poly_unsaturated_fat">#34D399</color>
+
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#66666666</color>
+    <color name="text_hint">#999999</color>
+    <color name="error_color">#FF324D</color>
+    <color name="color_divider">#E0E0E0</color>
+    <color name="background_gray">#F5F5F5</color>
+
+    <color name="carb_color">#A594F9</color>
+    <color name="protein_color">#F5C842</color>
+    <color name="fat_color">#FF8C61</color>
+    <color name="blue_primary">#2196F3</color>
+
+    <color name="Checked">#CE4040</color>
+    <color name="Unchecked">#160101</color>
+    <color name="card_normal">#FFFFFF</color>
+    <color name="card_selected">#FF444444</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="home_page_background">#F6F4FF</color>
+    <color name="home_surface">#FFFFFFFF</color>
+    <color name="home_surface_alt">#F4F1FF</color>
+    <color name="home_text_primary">#171328</color>
+    <color name="home_text_secondary">#80778F</color>
+    <color name="home_text_inverse_soft">#D9CCFF</color>
+    <color name="home_divider">#ECE6FB</color>
+    <color name="home_progress_track">#E8E2FA</color>
+    <color name="home_ring_track">#EFEAFB</color>
+</resources>
