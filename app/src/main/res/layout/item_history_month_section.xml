@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:orientation="vertical"
+    tools:ignore="HardcodedText">
+
+    <TextView
+        android:id="@+id/tv_section_month_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:textColor="@color/home_text_primary"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/HistoryWeekday"
+            android:text="一" />
+
+        <TextView
+            style="@style/HistoryWeekday"
+            android:text="二" />
+
+        <TextView
+            style="@style/HistoryWeekday"
+            android:text="三" />
+
+        <TextView
+            style="@style/HistoryWeekday"
+            android:text="四" />
+
+        <TextView
+            style="@style/HistoryWeekday"
+            android:text="五" />
+
+        <TextView
+            style="@style/HistoryWeekday"
+            android:text="六" />
+
+        <TextView
+            style="@style/HistoryWeekday"
+            android:text="日" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <com.example.food.ui.history.WeekBandOverlayView
+            android:id="@+id/view_week_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <GridLayout
+            android:id="@+id/grid_section_dates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="7"
+            android:orientation="horizontal" />
+    </FrameLayout>
+</LinearLayout>

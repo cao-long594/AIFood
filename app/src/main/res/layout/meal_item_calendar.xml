@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <GridView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/gv_month_calendar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:numColumns="7"
-    android:verticalSpacing="4dp"
+    android:gravity="center"
     android:horizontalSpacing="0dp"
-    android:overScrollMode="never"/> <!-- 绂佺敤杩囧害婊氬姩 -->
-
+    android:numColumns="7"
+    android:overScrollMode="never"
+    android:stretchMode="columnWidth"
+    android:verticalSpacing="0dp" />

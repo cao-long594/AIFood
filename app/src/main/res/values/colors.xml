@@ -1,52 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="primary_color">#7241F2</color>
-    <color name="secondary_color">#F1F2F6</color>
-    <color name="accent_color">#F45805</color>
+    <color name="token_primary">#6B4EFF</color>
+    <color name="token_primary_bg">#EBEBFF</color>
+    <color name="token_carb">#A78BFA</color>
+    <color name="token_protein">#F59E0B</color>
+    <color name="token_fat">#F87171</color>
+    <color name="token_label_primary">#FF000000</color>
+    <color name="token_label_secondary">#993C3C43</color>
+    <color name="token_label_tertiary">#4D3C3C43</color>
+    <color name="token_separator">#C6C6C8</color>
+    <color name="token_bg_primary">#F2F2F7</color>
+    <color name="token_bg_secondary">#FFFFFFFF</color>
+    <color name="token_bg_tertiary">#F2F2F7</color>
+
+    <color name="primary_color">@color/token_primary</color>
+    <color name="secondary_color">@color/token_bg_tertiary</color>
 
     <color name="mint_primary">#00B75E</color>
-    <color name="mint_secondary">#7ADEB8</color>
-    <color name="mint_accent">#6531FF</color>
-
-    <color name="orange_primary">#F45805</color>
-    <color name="orange_secondary">#F5F5F5</color>
-    <color name="orange_accent">#E34607</color>
-
-    <color name="dark_background">#131518</color>
-    <color name="light_background">#FFFFFF</color>
 
     <color name="saturated_fat">#F87171</color>
-    <color name="mono_unsaturated_fat">#FBBF24</color>
+    <color name="mono_unsaturated_fat">#F59E0B</color>
     <color name="poly_unsaturated_fat">#34D399</color>
 
-    <color name="text_primary">#000000</color>
-    <color name="text_secondary">#66666666</color>
-    <color name="text_hint">#999999</color>
-    <color name="error_color">#FF324D</color>
-    <color name="color_divider">#E0E0E0</color>
-    <color name="background_gray">#F5F5F5</color>
+    <color name="text_primary">@color/token_label_primary</color>
+    <color name="text_secondary">@color/token_label_secondary</color>
+    <color name="text_hint">@color/token_label_tertiary</color>
+    <color name="color_divider">@color/token_separator</color>
+    <color name="background_gray">@color/token_bg_primary</color>
 
-    <color name="carb_color">#A594F9</color>
-    <color name="protein_color">#F5C842</color>
-    <color name="fat_color">#FF8C61</color>
-    <color name="blue_primary">#2196F3</color>
+    <color name="carb_color">@color/token_carb</color>
+    <color name="protein_color">@color/token_protein</color>
+    <color name="fat_color">@color/token_fat</color>
 
     <color name="Checked">#CE4040</color>
     <color name="Unchecked">#160101</color>
-    <color name="card_normal">#FFFFFF</color>
-    <color name="card_selected">#FF444444</color>
-    <color name="transparent">#00000000</color>
 
-    <color name="home_page_background">#F6F4FF</color>
-    <color name="home_surface">#FFFFFFFF</color>
-    <color name="home_surface_alt">#F4F1FF</color>
-    <color name="home_text_primary">#171328</color>
-    <color name="home_text_secondary">#80778F</color>
-    <color name="home_text_inverse_soft">#D9CCFF</color>
-    <color name="home_divider">#ECE6FB</color>
-    <color name="home_progress_track">#E8E2FA</color>
-    <color name="home_ring_track">#EFEAFB</color>
+    <color name="home_page_background">@color/token_bg_primary</color>
+    <color name="home_surface">@color/token_bg_secondary</color>
+    <color name="home_surface_alt">@color/token_primary_bg</color>
+    <color name="home_text_primary">@color/token_label_primary</color>
+    <color name="home_text_secondary">@color/token_label_secondary</color>
+    <color name="home_text_tertiary">@color/token_label_tertiary</color>
+    <color name="home_text_inverse_soft">#DCD7FF</color>
+    <color name="home_divider">@color/token_separator</color>
+    <color name="home_progress_track">#D8D7F4</color>
+    <color name="home_ring_track">@color/token_primary_bg</color>
+
+    <color name="history_future_text">#B5B5B5</color>
+    <color name="history_week_current_fill">#E9E0FF</color>
+
+    <color name="water_screen_bg">#F4F7FF</color>
+    <color name="water_surface">#FFFFFFFF</color>
+    <color name="water_card_stroke">#D9E3F6</color>
+    <color name="water_primary">#5C74FF</color>
+    <color name="water_primary_deep">#3550E8</color>
+    <color name="water_primary_soft">#E8EEFF</color>
+    <color name="water_quick_action_fill">#EEF1FC</color>
+    <color name="water_quick_action_fill_pressed">#E4EAFE</color>
+    <color name="water_quick_amount_text">#3D45CC</color>
+    <color name="water_quick_unit_text">#7F879C</color>
+    <color name="water_text_primary">#16203A</color>
+    <color name="water_text_secondary">#7D8AA8</color>
+    <color name="water_ring_track">#E3EAFB</color>
+    <color name="water_ring_glow">#305C74FF</color>
+    <color name="water_record_bg">#F7F9FF</color>
+    <color name="water_delete_bg">#EDF1FB</color>
+    <color name="water_delete_bg_pressed">#FFDDE3</color>
 </resources>

@@ -14,16 +14,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food.R;
-import com.example.food.db.AppDatabase;
-import com.example.food.db.FoodSeedImporter;
-import com.example.food.db.dao.FoodDao;
+import com.example.food.data.repository.FoodRepository;
 import com.example.food.db.entity.Food;
-import com.example.food.ui.food.AddFoodActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FoodBankFragment extends Fragment {
@@ -31,27 +30,25 @@ public class FoodBankFragment extends Fragment {
     private RecyclerView foodRecyclerView;
     private SearchView searchView;
     private TextView emptyStateTextView;
+    private View addFoodFab;
+
     private FoodAdapter foodAdapter;
-    private AppDatabase database;
-    private FoodDao foodDao;
+    private FoodRepository foodRepository;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_foodbank, container, false);
+        foodRepository = new FoodRepository(requireContext());
         initViews(root);
-        initDatabase();
         loadFoods();
 
-        root.findViewById(R.id.fragment_container).setOnClickListener(v -> {
-            if (foodAdapter != null) {
-                foodAdapter.clearSelection();
-            }
-        });
+        root.findViewById(R.id.fragment_container).setOnClickListener(v -> foodAdapter.clearSelection());
 
         foodRecyclerView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN && foodAdapter != null && foodAdapter.getSelectedPosition() != -1) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN
+                    && foodAdapter.getSelectedPosition() != RecyclerView.NO_POSITION) {
                 foodAdapter.clearSelection();
                 return true;
             }
@@ -65,8 +62,16 @@ public class FoodBankFragment extends Fragment {
         foodRecyclerView = root.findViewById(R.id.rv_food);
         searchView = root.findViewById(R.id.search_view);
         emptyStateTextView = root.findViewById(R.id.tv_empty_state);
+        addFoodFab = root.findViewById(R.id.btn_add_food);
 
         foodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        DefaultItemAnimator animator = new DefaultItemAnimator();
+        animator.setAddDuration(200);
+        animator.setRemoveDuration(200);
+        animator.setMoveDuration(200);
+        animator.setChangeDuration(200);
+        foodRecyclerView.setItemAnimator(animator);
+
         foodAdapter = new FoodAdapter(requireContext());
         foodRecyclerView.setAdapter(foodAdapter);
 
@@ -77,6 +82,7 @@ public class FoodBankFragment extends Fragment {
         });
 
         foodAdapter.setOnDeleteClickListener((food, position) -> deleteFood(food.getId()));
+        foodAdapter.setOnHeaderClickListener(foodAdapter::toggleGroup);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -93,59 +99,43 @@ public class FoodBankFragment extends Fragment {
             }
         });
 
-        root.findViewById(R.id.btn_add_food).setOnClickListener(v -> {
+        addFoodFab.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), AddFoodActivity.class);
             startActivity(intent);
         });
     }
 
-    private void initDatabase() {
-        database = AppDatabase.getInstance(requireContext());
-        foodDao = database.foodDao();
-    }
-
     private void loadFoods() {
-        new Thread(() -> {
-            FoodSeedImporter.ensureImported(requireContext(), database);
-            List<Food> foods = foodDao.getAllFoods();
-            runOnUiThreadIfActive(() -> updateFoodList(foods, false));
-        }).start();
+        foodRepository.loadAllFoods(foods -> updateFoodList(foods, false));
     }
 
     private void searchFoods(String query) {
-        new Thread(() -> {
-            FoodSeedImporter.ensureImported(requireContext(), database);
-            List<Food> foods;
-            if (query == null || query.trim().isEmpty()) {
-                foods = foodDao.getAllFoods();
-            } else {
-                foods = foodDao.searchFoods(query.trim());
-            }
-            boolean isSearchMode = query != null && !query.trim().isEmpty();
-            runOnUiThreadIfActive(() -> updateFoodList(foods, isSearchMode));
-        }).start();
+        String trimmed = query == null ? "" : query.trim();
+        boolean isSearchMode = !trimmed.isEmpty();
+        foodRepository.searchFoods(trimmed, foods -> updateFoodList(foods, isSearchMode));
     }
 
     private void updateFoodList(List<Food> foods, boolean isSearchMode) {
-        foodAdapter.setData(foods);
-        boolean isEmpty = foods == null || foods.isEmpty();
+        List<Food> safeFoods = foods == null ? new ArrayList<>() : foods;
+        foodAdapter.setData(safeFoods, isSearchMode);
+
+        boolean isEmpty = safeFoods.isEmpty();
         emptyStateTextView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         if (isSearchMode && isEmpty) {
-            emptyStateTextView.setText("没有找到匹配的食物，换个关键词试试");
+            emptyStateTextView.setText(getString(R.string.search_no_result));
         } else if (isEmpty) {
-            emptyStateTextView.setText("还没有食物，点击右下角先添加一个吧");
+            emptyStateTextView.setText(getString(R.string.foodbank_empty_state));
         }
+
+        addFoodFab.setVisibility(safeFoods.size() > 5 ? View.VISIBLE : View.GONE);
     }
 
     private void deleteFood(int foodId) {
-        new Thread(() -> {
-            foodDao.deleteById(foodId);
-            runOnUiThreadIfActive(() -> {
-                Toast.makeText(getContext(), "食物已删除", Toast.LENGTH_SHORT).show();
-                String query = searchView.getQuery().toString();
-                searchFoods(query);
-            });
-        }).start();
+        foodRepository.deleteById(foodId, () -> {
+            Toast.makeText(getContext(), R.string.food_deleted, Toast.LENGTH_SHORT).show();
+            String query = searchView.getQuery().toString();
+            searchFoods(query);
+        });
     }
 
     @Override
@@ -154,17 +144,4 @@ public class FoodBankFragment extends Fragment {
         String query = searchView.getQuery().toString();
         searchFoods(query);
     }
-
-    private void runOnUiThreadIfActive(Runnable action) {
-        if (!isAdded() || getActivity() == null) {
-            return;
-        }
-        getActivity().runOnUiThread(() -> {
-            if (!isAdded() || getView() == null) {
-                return;
-            }
-            action.run();
-        });
-    }
 }
-

@@ -7,29 +7,25 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-/**
- * 食物营养实体类
- * 存储食物的名称及各种营养成分信息
- */
 @Entity(tableName = "foods")
 public class Food implements Parcelable {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private String name; // 食物名称
-    private double calories; // 卡路里(kcal)
-    private double carbohydrate; // 碳水化合物(g)
-    private double protein; // 蛋白质(g)
-    private double fat; // 脂肪(g)
-    private double saturatedFat; // 饱和脂肪(g)
-    private double monounsaturatedFat; // 单不饱和脂肪(g)
-    private double polyunsaturatedFat; // 多不饱和脂肪(g)
-    private int unit; // 计量单位(1:克, 2:毫升)
-    private int unitAmount; // 每单位数量(如100克/100毫升)
+    private String name;
+    private double calories;
+    private double carbohydrate;
+    private double protein;
+    private double fat;
+    private double saturatedFat;
+    private double monounsaturatedFat;
+    private double polyunsaturatedFat;
+    private int unit;
+    private int unitAmount;
+    private String category;
 
-    // 构造函数
-    public Food(String name, double calories, double carbohydrate, double protein, 
-                double fat, double saturatedFat, double monounsaturatedFat, 
-                double polyunsaturatedFat, int unit, int unitAmount) {
+    public Food(String name, double calories, double carbohydrate, double protein,
+                double fat, double saturatedFat, double monounsaturatedFat,
+                double polyunsaturatedFat, int unit, int unitAmount, String category) {
         this.name = name;
         this.calories = calories;
         this.carbohydrate = carbohydrate;
@@ -40,13 +36,22 @@ public class Food implements Parcelable {
         this.polyunsaturatedFat = polyunsaturatedFat;
         this.unit = unit;
         this.unitAmount = unitAmount;
+        this.category = category;
+    }
+
+    @Ignore
+    public Food(String name, double calories, double carbohydrate, double protein,
+                double fat, double saturatedFat, double monounsaturatedFat,
+                double polyunsaturatedFat, int unit, int unitAmount) {
+        this(name, calories, carbohydrate, protein, fat, saturatedFat, monounsaturatedFat,
+                polyunsaturatedFat, unit, unitAmount, null);
     }
 
     @Ignore
     public Food(int id, String name, double calories, double carbohydrate,
                 double protein, double fat, double saturatedFat,
                 double monounsaturatedFat, double polyunsaturatedFat,
-                int unit, int unitAmount) {
+                int unit, int unitAmount, String category) {
         this.id = id;
         this.name = name;
         this.calories = calories;
@@ -58,9 +63,18 @@ public class Food implements Parcelable {
         this.polyunsaturatedFat = polyunsaturatedFat;
         this.unit = unit;
         this.unitAmount = unitAmount;
+        this.category = category;
     }
 
-    // Getter和Setter方法
+    @Ignore
+    public Food(int id, String name, double calories, double carbohydrate,
+                double protein, double fat, double saturatedFat,
+                double monounsaturatedFat, double polyunsaturatedFat,
+                int unit, int unitAmount) {
+        this(id, name, calories, carbohydrate, protein, fat, saturatedFat,
+                monounsaturatedFat, polyunsaturatedFat, unit, unitAmount, null);
+    }
+
     public int getId() {
         return id;
     }
@@ -149,7 +163,14 @@ public class Food implements Parcelable {
         this.unitAmount = unitAmount;
     }
 
-    // Parcelable 实现
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     protected Food(Parcel in) {
         id = in.readInt();
         name = in.readString();
@@ -162,6 +183,7 @@ public class Food implements Parcelable {
         polyunsaturatedFat = in.readDouble();
         unit = in.readInt();
         unitAmount = in.readInt();
+        category = in.readString();
     }
 
     public static final Creator<Food> CREATOR = new Creator<Food>() {
@@ -194,6 +216,7 @@ public class Food implements Parcelable {
         dest.writeDouble(polyunsaturatedFat);
         dest.writeInt(unit);
         dest.writeInt(unitAmount);
+        dest.writeString(category);
     }
 
     @Override

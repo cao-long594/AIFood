@@ -1,16 +1,12 @@
 package com.example.food.ui.home;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.Looper;
 
-import com.example.food.db.AppDatabase;
-import com.example.food.db.dao.MealRecordDao;
+import com.example.food.data.preferences.UserGoalPreferences;
+import com.example.food.data.repository.MealRepository;
 import com.example.food.db.entity.MealRecord;
 import com.example.food.model.NutritionCalculator;
 import com.example.food.model.UserGoal;
-import com.example.food.utils.Constants;
 import com.example.food.utils.DateUtils;
 
 import java.util.ArrayList;
@@ -20,10 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-/**
- * 濡絾鐗犻妴澶愬极閻楀牆绁﹂悘鐐插亰缁辨壆鎷归悢鑽ょ厬闁圭顦板Λ?闁?闁哄牆鐗愭禒娑㈠触閸絾鍎夐柛蹇曠帛閺嗙喖骞戦琛″亾?
- */
 public class HomeViewModel {
 
     public enum TimeGranularity {
@@ -37,15 +29,16 @@ public class HomeViewModel {
     }
 
     private final Context context;
-    private final MealRecordDao mealRecordDao;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final MealRepository mealRepository;
+    private final UserGoalPreferences userGoalPreferences;
 
     private UserGoal userGoal;
     private NutritionCalculator.NutritionData todayNutritionData;
 
     public HomeViewModel(Context context) {
         this.context = context.getApplicationContext();
-        this.mealRecordDao = AppDatabase.getInstance(this.context).mealRecordDao();
+        this.mealRepository = new MealRepository(this.context);
+        this.userGoalPreferences = new UserGoalPreferences(this.context);
         loadUserGoal();
         todayNutritionData = new NutritionCalculator.NutritionData();
     }
@@ -54,22 +47,19 @@ public class HomeViewModel {
                                 TimeGranularity granularity,
                                 OnHomeUiStateLoadedListener listener) {
         final Date safeSelectedDate = DateUtils.getDateStart(selectedDate == null ? new Date() : selectedDate);
+        DateRange range = calculateVisibleRange(safeSelectedDate, granularity);
+        String displayTitle = buildDisplayTitle(safeSelectedDate, granularity, range);
 
-        new Thread(() -> {
-            DateRange range = calculateVisibleRange(safeSelectedDate, granularity);
-            String displayTitle = buildDisplayTitle(safeSelectedDate, granularity, range);
-
+        mealRepository.getRecordsByDateRange(range.startInclusive, range.endExclusive, records -> {
             NutritionCalculator.NutritionData dayNutritionData = new NutritionCalculator.NutritionData();
             FatRatioData fatRatioData = new FatRatioData();
             PeriodSeries periodSeries = null;
 
             if (granularity == TimeGranularity.DAY) {
-                List<MealRecord> dayRecords = mealRecordDao.getRecordsByDateRange(range.startInclusive, range.endExclusive);
-                dayNutritionData = aggregateNutrition(dayRecords);
+                dayNutritionData = aggregateNutrition(records);
                 fatRatioData = buildFatRatio(dayNutritionData);
                 todayNutritionData = dayNutritionData;
             } else {
-                List<MealRecord> records = mealRecordDao.getRecordsByDateRange(range.startInclusive, range.endExclusive);
                 periodSeries = buildPeriodSeries(records, range);
             }
 
@@ -84,12 +74,10 @@ public class HomeViewModel {
                     userGoal
             );
 
-            mainHandler.post(() -> {
-                if (listener != null) {
-                    listener.onStateLoaded(state);
-                }
-            });
-        }).start();
+            if (listener != null) {
+                listener.onStateLoaded(state);
+            }
+        });
     }
 
     private DateRange calculateVisibleRange(Date selectedDate, TimeGranularity granularity) {
@@ -104,7 +92,9 @@ public class HomeViewModel {
 
         if (granularity == TimeGranularity.WEEK) {
             calendar.setFirstDayOfWeek(Calendar.MONDAY);
-            calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            int offset = dayOfWeek == Calendar.SUNDAY ? -6 : Calendar.MONDAY - dayOfWeek;
+            calendar.add(Calendar.DAY_OF_MONTH, offset);
             Date start = DateUtils.getDateStart(calendar.getTime());
             calendar.setTime(start);
             calendar.add(Calendar.DAY_OF_MONTH, 7);
@@ -120,17 +110,17 @@ public class HomeViewModel {
 
     private String buildDisplayTitle(Date selectedDate, TimeGranularity granularity, DateRange range) {
         if (granularity == TimeGranularity.DAY) {
-            return DateUtils.formatDate(selectedDate, "yyyy年M月d日");
+            return DateUtils.formatDate(selectedDate, "yyyy\u5e74M\u6708d\u65e5");
         }
         if (granularity == TimeGranularity.WEEK) {
             Calendar endCal = Calendar.getInstance();
             endCal.setTime(range.endExclusive);
             endCal.add(Calendar.DAY_OF_MONTH, -1);
-            String startText = DateUtils.formatDate(range.startInclusive, "yyyy年M月d日");
-            String endText = DateUtils.formatDate(endCal.getTime(), "M月d日");
-            return startText + "至" + endText;
+            String startText = DateUtils.formatDate(range.startInclusive, "yyyy\u5e74M\u6708d\u65e5");
+            String endText = DateUtils.formatDate(endCal.getTime(), "M\u6708d\u65e5");
+            return startText + " \u81f3 " + endText;
         }
-        return DateUtils.formatDate(selectedDate, "yyyy年M月");
+        return DateUtils.formatDate(selectedDate, "yyyy\u5e74M\u6708");
     }
 
     private NutritionCalculator.NutritionData aggregateNutrition(List<MealRecord> records) {
@@ -221,31 +211,17 @@ public class HomeViewModel {
         return ratioData;
     }
 
-    private void loadUserGoal() {
-        SharedPreferences preferences = context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
-        double caloriesGoal = preferences.getFloat(Constants.PREF_CALORIES_GOAL, (float) Constants.DEFAULT_CALORIES_GOAL);
-        double carbohydrateGoal = preferences.getFloat(Constants.PREF_CARBOHYDRATE_GOAL, (float) Constants.DEFAULT_CARBOHYDRATE_GOAL);
-        double proteinGoal = preferences.getFloat(Constants.PREF_PROTEIN_GOAL, (float) Constants.DEFAULT_PROTEIN_GOAL);
-        double fatGoal = preferences.getFloat(Constants.PREF_FAT_GOAL, (float) Constants.DEFAULT_FAT_GOAL);
-        double waterGoal = preferences.getFloat(Constants.PREF_WATER_GOAL, (float) Constants.DEFAULT_WATER_GOAL);
-
-        userGoal = new UserGoal(caloriesGoal, carbohydrateGoal, proteinGoal, fatGoal, waterGoal);
+private void loadUserGoal() {
+        userGoal = userGoalPreferences.loadUserGoal();
     }
 
     public void saveUserGoal(UserGoal goal) {
         goal.setCaloriesGoal(calculateCaloriesGoal(goal));
         this.userGoal = goal;
-        SharedPreferences preferences = context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putFloat(Constants.PREF_CALORIES_GOAL, (float) goal.getCaloriesGoal());
-        editor.putFloat(Constants.PREF_CARBOHYDRATE_GOAL, (float) goal.getCarbohydrateGoal());
-        editor.putFloat(Constants.PREF_PROTEIN_GOAL, (float) goal.getProteinGoal());
-        editor.putFloat(Constants.PREF_FAT_GOAL, (float) goal.getFatGoal());
-        editor.putFloat(Constants.PREF_WATER_GOAL, (float) goal.getWaterGoal());
-        editor.apply();
+        userGoalPreferences.saveUserGoal(goal);
     }
 
-    private double calculateCaloriesGoal(UserGoal goal) {
+    double calculateCaloriesGoal(UserGoal goal) {
         if (goal == null) {
             return 0;
         }
@@ -253,7 +229,6 @@ public class HomeViewModel {
                 + goal.getProteinGoal() * NutritionCalculator.CALORIES_PER_GRAM_PROTEIN
                 + goal.getFatGoal() * NutritionCalculator.CALORIES_PER_GRAM_FAT;
     }
-
 
     public UserGoal getUserGoal() {
         return userGoal;
@@ -341,18 +316,5 @@ public class HomeViewModel {
         public double poly;
         public double monoRatioToSat;
         public double polyRatioToSat;
-
-        public String buildRatioText() {
-            if (saturated <= 0) {
-                return "濡ゆ宕幏浼存晬濮橆剙绀嬪☉鎾崇▌缁辩増寰勫顐ょ憹 = 0闁?闁?";
-            }
-            return String.format(Locale.CHINA,
-                    "濡ゆ宕幏浼存晬濮橆剙绀嬪☉鎾崇▌缁辩増寰勫顐ょ憹 = 1闁?.2f闁?.2f",
-                    monoRatioToSat,
-                    polyRatioToSat);
-        }
     }
 }
-
-
-

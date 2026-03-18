@@ -1,6 +1,5 @@
 package com.example.food.ui.meal;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,9 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food.R;
-import com.example.food.db.AppDatabase;
-import com.example.food.db.entity.Food;
+import com.example.food.data.repository.FoodRepository;
+import com.example.food.data.repository.MealRepository;
 import com.example.food.db.entity.MealRecord;
+import com.example.food.domain.service.NutritionService;
 import com.example.food.utils.DateUtils;
 
 import java.util.ArrayList;
@@ -36,17 +36,14 @@ public class MealShowFragment extends Fragment {
     private Date selectedDate;
 
     private RecyclerView addedFoodRv;
-    private TextView carbsValueTv;
-    private TextView proteinValueTv;
-    private TextView fatValueTv;
-    private TextView caloriesValueTv;
-    private TextView caloriesPercentageTv;
-    private TextView recommendedCaloriesPercentageTv;
     private TextView emptyFoodsTextView;
 
-    private AppDatabase database;
     private final List<MealRecord> addedRecords = new ArrayList<>();
     private FoodAdapter addedFoodAdapter;
+    private double lastTodayTotalCalories = 0;
+
+    private MealRepository mealRepository;
+    private FoodRepository foodRepository;
 
     public static MealShowFragment newInstance(int mealType, Date selectedDate) {
         MealShowFragment fragment = new MealShowFragment();
@@ -64,7 +61,8 @@ public class MealShowFragment extends Fragment {
             mealType = getArguments().getInt(ARG_MEAL_TYPE);
             selectedDate = new Date(getArguments().getLong(ARG_SELECTED_DATE));
         }
-        database = AppDatabase.getInstance(requireContext());
+        mealRepository = new MealRepository(requireContext());
+        foodRepository = new FoodRepository(requireContext());
     }
 
     @Nullable
@@ -78,12 +76,6 @@ public class MealShowFragment extends Fragment {
     }
 
     private void initViews(View root) {
-        carbsValueTv = root.findViewById(R.id.carbs_value);
-        proteinValueTv = root.findViewById(R.id.protein_value);
-        fatValueTv = root.findViewById(R.id.fat_value);
-        caloriesValueTv = root.findViewById(R.id.calories_value);
-        caloriesPercentageTv = root.findViewById(R.id.calories_percentage);
-        recommendedCaloriesPercentageTv = root.findViewById(R.id.recommended_calories_percentage);
         emptyFoodsTextView = root.findViewById(R.id.tv_empty_foods);
 
         addedFoodRv = root.findViewById(R.id.added_food_rv);
@@ -103,35 +95,35 @@ public class MealShowFragment extends Fragment {
     }
 
     public void loadAddedFoods() {
-        new Thread(() -> {
-            try {
-                Date startOfDay = DateUtils.getDateStart(selectedDate);
-                Date endOfDay = DateUtils.getDateEnd(selectedDate);
-                List<MealRecord> allRecords = database.mealRecordDao().getRecordsByDate(startOfDay, endOfDay);
-                List<MealRecord> filteredRecords = new ArrayList<>();
-                double todayTotalCalories = 0;
+        if (mealRepository == null || selectedDate == null) {
+            return;
+        }
 
-                for (MealRecord record : allRecords) {
-                    todayTotalCalories += record.getCalories();
-                    if (record.getMealType() == mealType) {
-                        filteredRecords.add(record);
-                    }
+        Date startOfDay = DateUtils.getDateStart(selectedDate);
+        Date endOfDay = DateUtils.getDateEnd(selectedDate);
+
+        mealRepository.getRecordsByDateRange(startOfDay, endOfDay, allRecords -> {
+            List<MealRecord> filteredRecords = new ArrayList<>();
+            double todayTotalCalories = 0;
+
+            for (MealRecord record : allRecords) {
+                todayTotalCalories += record.getCalories();
+                if (record.getMealType() == mealType) {
+                    filteredRecords.add(record);
                 }
-
-                final double finalTodayTotalCalories = todayTotalCalories;
-                runOnUiThreadIfActive(() -> {
-                    addedRecords.clear();
-                    addedRecords.addAll(filteredRecords);
-                    addedFoodAdapter.notifyDataSetChanged();
-                    emptyFoodsTextView.setVisibility(filteredRecords.isEmpty() ? View.VISIBLE : View.GONE);
-                    updateNutritionData(finalTodayTotalCalories);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThreadIfActive(() ->
-                        Toast.makeText(getContext(), "加载数据失败", Toast.LENGTH_SHORT).show());
             }
-        }).start();
+
+            final double totalCalories = todayTotalCalories;
+            lastTodayTotalCalories = totalCalories;
+            if (!isAdded()) {
+                return;
+            }
+            addedFoodAdapter.submitRecords(filteredRecords);
+            addedRecords.clear();
+            addedRecords.addAll(filteredRecords);
+            emptyFoodsTextView.setVisibility(filteredRecords.isEmpty() ? View.VISIBLE : View.GONE);
+            updateNutritionData(totalCalories);
+        });
     }
 
     private void updateNutritionData(double todayTotalCalories) {
@@ -147,51 +139,43 @@ public class MealShowFragment extends Fragment {
             currentMealCalories += record.getCalories();
         }
 
-        carbsValueTv.setText(String.format(Locale.CHINA, "%.0f", totalCarbs));
-        proteinValueTv.setText(String.format(Locale.CHINA, "%.0f", totalProtein));
-        fatValueTv.setText(String.format(Locale.CHINA, "%.0f", totalFat));
-        caloriesValueTv.setText(String.format(Locale.CHINA, "%.0f kcal", currentMealCalories));
-        recommendedCaloriesPercentageTv.setText(getRecommendedPercentageByMealType(mealType));
-
-        double caloriesPercentage = 0;
-        if (todayTotalCalories > 0) {
-            caloriesPercentage = (currentMealCalories / todayTotalCalories) * 100;
-        }
-        caloriesPercentageTv.setText(String.format(Locale.CHINA, "%.0f%%", caloriesPercentage));
+        double caloriesPercentage = todayTotalCalories > 0 ? (currentMealCalories / todayTotalCalories) * 100 : 0;
+        addedFoodAdapter.updateSummary(totalCarbs, totalProtein, totalFat, currentMealCalories,
+                caloriesPercentage, getRecommendedPercentageByMealType(mealType));
     }
 
     private String getRecommendedPercentageByMealType(int mealType) {
         switch (mealType) {
             case MealRecord.MEAL_TYPE_BREAKFAST:
-                return "参考：20%-25%";
+                return getString(R.string.meal_ratio_breakfast);
             case MealRecord.MEAL_TYPE_LUNCH:
             case MealRecord.MEAL_TYPE_DINNER:
-                return "参考：25%-30%";
+                return getString(R.string.meal_ratio_main);
             case MealRecord.MEAL_TYPE_MORNING_SNACK:
             case MealRecord.MEAL_TYPE_BEDTIME:
             case MealRecord.MEAL_TYPE_EVENING_SNACK:
-                return "参考：5%-10%";
+                return getString(R.string.meal_ratio_snack_small);
             case MealRecord.MEAL_TYPE_AFTERNOON_SNACK:
-                return "参考：10%-15%";
+                return getString(R.string.meal_ratio_snack_medium);
             default:
-                return "参考：0%";
+                return getString(R.string.meal_ratio_default);
         }
     }
 
     private void showEditAmountDialog(MealRecord record) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("修改食物重量");
+        builder.setTitle(R.string.meal_edit_amount_title);
 
         EditText input = new EditText(getContext());
         input.setText(String.format(Locale.CHINA, "%.0f", record.getAmount()));
-        input.setHint("请输入重量（克）");
+        input.setHint(R.string.meal_edit_amount_hint);
         input.setPadding(50, 40, 50, 40);
         builder.setView(input);
 
-        builder.setPositiveButton("确定", (dialog, which) -> {
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
             String amountStr = input.getText().toString().trim();
             if (amountStr.isEmpty()) {
-                Toast.makeText(getContext(), "请输入食物重量", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.meal_edit_amount_error_empty, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -199,74 +183,63 @@ public class MealShowFragment extends Fragment {
                 double amount = Double.parseDouble(amountStr);
                 updateMealRecord(record, amount);
             } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "请输入有效数字", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.meal_edit_amount_error_number, Toast.LENGTH_SHORT).show();
             }
         });
 
-        builder.setNegativeButton("取消", null);
+        builder.setNegativeButton(android.R.string.cancel, null);
         builder.show();
     }
 
     private void showDeleteConfirmDialog(MealRecord record) {
         new AlertDialog.Builder(getContext())
-                .setTitle("删除确认")
-                .setMessage("确定要删除 " + record.getFoodName() + " 吗？")
-                .setPositiveButton("删除", (dialog, which) -> deleteMealRecord(record))
-                .setNegativeButton("取消", null)
+                .setTitle(R.string.meal_delete_title)
+                .setMessage(getString(R.string.meal_delete_message, record.getFoodName()))
+                .setPositiveButton(R.string.meal_delete_action, (dialog, which) -> deleteMealRecord(record))
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
     private void updateMealRecord(MealRecord record, double newAmount) {
-        new Thread(() -> {
-            try {
-                Food food = database.foodDao().getFoodById(record.getFoodId());
-                if (food != null) {
-                    double ratio = newAmount / 100.0;
-                    record.setAmount(newAmount);
-                    record.setCalories(food.getCalories() * ratio);
-                    record.setCarbohydrate(food.getCarbohydrate() * ratio);
-                    record.setProtein(food.getProtein() * ratio);
-                    record.setFat(food.getFat() * ratio);
-                    record.setSaturatedFat(food.getSaturatedFat() * ratio);
-                    record.setMonounsaturatedFat(food.getMonounsaturatedFat() * ratio);
-                    record.setPolyunsaturatedFat(food.getPolyunsaturatedFat() * ratio);
-
-                    database.mealRecordDao().update(record);
-                    runOnUiThreadIfActive(() -> {
-                        Toast.makeText(getContext(), "修改成功", Toast.LENGTH_SHORT).show();
-                        loadAddedFoods();
-                    });
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        foodRepository.getFoodById(record.getFoodId(), food -> {
+            if (food == null) {
+                Toast.makeText(getContext(), R.string.meal_edit_fail, Toast.LENGTH_SHORT).show();
+                return;
             }
-        }).start();
+
+            com.example.food.model.NutritionCalculator.NutritionData nutrition = NutritionService.calculateByAmount(food, newAmount);
+            record.setAmount(newAmount);
+            record.setCalories(nutrition.getCalories());
+            record.setCarbohydrate(nutrition.getCarbohydrate());
+            record.setProtein(nutrition.getProtein());
+            record.setFat(nutrition.getFat());
+            record.setSaturatedFat(nutrition.getSaturatedFat());
+            record.setMonounsaturatedFat(nutrition.getMonounsaturatedFat());
+            record.setPolyunsaturatedFat(nutrition.getPolyunsaturatedFat());
+
+            mealRepository.update(record, () -> {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), R.string.meal_edit_success, Toast.LENGTH_SHORT).show();
+                    loadAddedFoods();
+                }
+            });
+        });
     }
 
     private void deleteMealRecord(MealRecord record) {
-        new Thread(() -> {
-            try {
-                database.mealRecordDao().delete(record);
-                runOnUiThreadIfActive(() -> {
-                    Toast.makeText(getContext(), "删除成功", Toast.LENGTH_SHORT).show();
-                    loadAddedFoods();
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
+        List<MealRecord> current = new ArrayList<>(addedRecords);
+        current.remove(record);
+        addedRecords.clear();
+        addedRecords.addAll(current);
+        addedFoodAdapter.submitRecords(current);
+        emptyFoodsTextView.setVisibility(current.isEmpty() ? View.VISIBLE : View.GONE);
+        lastTodayTotalCalories = Math.max(0, lastTodayTotalCalories - record.getCalories());
+        updateNutritionData(lastTodayTotalCalories);
 
-    private void runOnUiThreadIfActive(Runnable action) {
-        Activity activity = getActivity();
-        if (!isAdded() || activity == null || activity.isFinishing() || activity.isDestroyed()) {
-            return;
-        }
-        activity.runOnUiThread(() -> {
-            if (!isAdded() || getView() == null) {
-                return;
+        mealRepository.delete(record, () -> {
+            if (isAdded()) {
+                Toast.makeText(getContext(), R.string.meal_delete_success, Toast.LENGTH_SHORT).show();
             }
-            action.run();
         });
     }
 

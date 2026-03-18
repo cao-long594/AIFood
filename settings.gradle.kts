@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Food"
+rootProject.name = "AIFood"
 include(":app")
 

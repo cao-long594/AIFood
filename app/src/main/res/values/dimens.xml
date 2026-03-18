@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="ui_page_horizontal">16dp</dimen>
+    <dimen name="ui_page_top">16dp</dimen>
+    <dimen name="ui_card_radius_md">16dp</dimen>
+    <dimen name="ui_card_radius_lg">24dp</dimen>
+    <dimen name="ui_card_padding_md">16dp</dimen>
+    <dimen name="ui_card_padding_sm">12dp</dimen>
+    <dimen name="ui_fab_size">56dp</dimen>
+    <dimen name="ui_fab_margin">20dp</dimen>
+    <dimen name="ui_text_title">28sp</dimen>
+    <dimen name="ui_text_body">14sp</dimen>
+    <dimen name="ui_text_caption">12sp</dimen>
+    <dimen name="ui_text_metric">52sp</dimen>
+    <dimen name="ui_text_metric_sm">24sp</dimen>
+</resources>

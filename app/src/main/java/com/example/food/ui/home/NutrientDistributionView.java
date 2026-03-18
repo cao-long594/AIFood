@@ -11,11 +11,12 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.example.food.R;
+import com.example.food.utils.DisplayUtils;
 
 public class NutrientDistributionView extends View {
 
-    private static final float DEFAULT_STROKE_DP = 18f;
-    private static final float DEFAULT_GAP_ANGLE = 4f;
+    private static final float DEFAULT_STROKE_DP = 22f;
+    private static final float DEFAULT_GAP_ANGLE = 3.2f;
 
     private final Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint segmentPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -25,6 +26,9 @@ public class NutrientDistributionView extends View {
     private final int carbColor;
     private final int fatColor;
     private final int trackColor;
+
+    private final float[] segmentValues = new float[3];
+    private final int[] segmentColors = new int[3];
 
     private float strokeWidthPx;
     private float gapAngle = DEFAULT_GAP_ANGLE;
@@ -46,7 +50,11 @@ public class NutrientDistributionView extends View {
         carbColor = ContextCompat.getColor(context, R.color.carb_color);
         fatColor = ContextCompat.getColor(context, R.color.fat_color);
         trackColor = ContextCompat.getColor(context, R.color.home_ring_track);
-        strokeWidthPx = dpToPx(DEFAULT_STROKE_DP);
+        // 修复问题4：移除重复的私有 dpToPx()，改用 DisplayUtils.dp2px()
+        strokeWidthPx = DisplayUtils.dp2px(context, DEFAULT_STROKE_DP);
+        segmentColors[0] = carbColor;
+        segmentColors[1] = proteinColor;
+        segmentColors[2] = fatColor;
         initPaints();
     }
 
@@ -72,7 +80,7 @@ public class NutrientDistributionView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         float size = Math.min(w, h);
-        float inset = strokeWidthPx / 2f + dpToPx(10);
+        float inset = strokeWidthPx / 2f + DisplayUtils.dp2px(getContext(), 7f);
         float left = (w - size) / 2f + inset;
         float top = (h - size) / 2f + inset;
         float right = (w + size) / 2f - inset;
@@ -85,33 +93,34 @@ public class NutrientDistributionView extends View {
         super.onDraw(canvas);
         canvas.drawArc(arcBounds, -90, 360, false, trackPaint);
 
-        float total = carb + protein + fat;
+        segmentValues[0] = carb;
+        segmentValues[1] = protein;
+        segmentValues[2] = fat;
+
+        float total = segmentValues[0] + segmentValues[1] + segmentValues[2];
         if (total <= 0f) {
             return;
         }
 
         int segmentCount = 0;
-        if (carb > 0f) segmentCount++;
-        if (protein > 0f) segmentCount++;
-        if (fat > 0f) segmentCount++;
+        for (float value : segmentValues) {
+            if (value > 0f) {
+                segmentCount++;
+            }
+        }
 
         float totalGap = segmentCount > 1 ? gapAngle * (segmentCount - 1) : 0f;
         float availableAngle = 360f - totalGap;
         float startAngle = -90f;
 
-        if (carb > 0f) {
-            float sweep = availableAngle * (carb / total);
-            drawSegment(canvas, startAngle, sweep, carbColor);
+        for (int i = 0; i < segmentValues.length; i++) {
+            float value = segmentValues[i];
+            if (value <= 0f) {
+                continue;
+            }
+            float sweep = availableAngle * (value / total);
+            drawSegment(canvas, startAngle, sweep, segmentColors[i]);
             startAngle += sweep + gapAngle;
-        }
-        if (protein > 0f) {
-            float sweep = availableAngle * (protein / total);
-            drawSegment(canvas, startAngle, sweep, proteinColor);
-            startAngle += sweep + gapAngle;
-        }
-        if (fat > 0f) {
-            float sweep = availableAngle * (fat / total);
-            drawSegment(canvas, startAngle, sweep, fatColor);
         }
     }
 
@@ -122,9 +131,4 @@ public class NutrientDistributionView extends View {
         segmentPaint.setColor(color);
         canvas.drawArc(arcBounds, startAngle, sweepAngle, false, segmentPaint);
     }
-
-    private float dpToPx(float dp) {
-        return dp * getResources().getDisplayMetrics().density;
-    }
 }
-

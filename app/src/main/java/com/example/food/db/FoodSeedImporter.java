@@ -8,6 +8,7 @@ import com.example.food.R;
 import com.example.food.db.dao.FoodDao;
 import com.example.food.db.entity.Food;
 import com.example.food.utils.Constants;
+import com.example.food.utils.FoodCategoryHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,9 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public final class FoodSeedImporter {
 
@@ -45,36 +46,42 @@ public final class FoodSeedImporter {
                 prefs.edit().putBoolean(Constants.PREF_UNIT_VALUE_MIGRATED, true).apply();
             }
 
-            if (prefs.getBoolean(Constants.PREF_DEFAULT_FOODS_IMPORTED, false)) {
-                return;
-            }
-
             try {
                 List<Food> defaultFoods = readDefaultFoods(appContext);
-                Set<String> existingNames = new HashSet<>();
-                List<String> dbNames = foodDao.getAllFoodNames();
-                if (dbNames != null) {
-                    for (String name : dbNames) {
-                        if (name != null) {
-                            existingNames.add(name.trim());
+
+                // 用 name → Food 建立数据库现有数据的索引
+                Map<String, Food> existingMap = new HashMap<>();
+                List<Food> allFoods = foodDao.getAllFoods();
+                if (allFoods != null) {
+                    for (Food food : allFoods) {
+                        String name = food.getName() == null ? "" : food.getName().trim();
+                        if (!name.isEmpty()) {
+                            existingMap.put(name, food);
                         }
                     }
                 }
 
                 database.runInTransaction(() -> {
-                    for (Food food : defaultFoods) {
-                        String name = food.getName() == null ? "" : food.getName().trim();
-                        if (name.isEmpty() || existingNames.contains(name)) {
-                            continue;
+                    for (Food newFood : defaultFoods) {
+                        String name = newFood.getName() == null ? "" : newFood.getName().trim();
+                        if (name.isEmpty()) continue;
+
+                        if (existingMap.containsKey(name)) {
+                            // 已存在 → 保留原 id，用 JSON 数据覆盖
+                            newFood.setId(existingMap.get(name).getId());
+                            foodDao.update(newFood);
+                        } else {
+                            // 不存在 → 插入
+                            foodDao.insert(newFood);
                         }
-                        foodDao.insert(food);
-                        existingNames.add(name);
                     }
                 });
 
-                prefs.edit().putBoolean(Constants.PREF_DEFAULT_FOODS_IMPORTED, true).apply();
+                if (!prefs.getBoolean(Constants.PREF_DEFAULT_FOODS_IMPORTED, false)) {
+                    prefs.edit().putBoolean(Constants.PREF_DEFAULT_FOODS_IMPORTED, true).apply();
+                }
             } catch (Exception e) {
-                Log.e(TAG, "Failed to import default foods", e);
+                Log.e(TAG, "Failed to sync default foods", e);
             }
         }
     }
@@ -100,6 +107,11 @@ public final class FoodSeedImporter {
                 unitAmount = 100;
             }
 
+            String category = FoodCategoryHelper.normalizeCategory(item.optString("category", ""));
+            if (!FoodCategoryHelper.isValidCategory(category)) {
+                category = null;
+            }
+
             foods.add(new Food(
                     name,
                     item.optDouble("calories", 0),
@@ -110,7 +122,8 @@ public final class FoodSeedImporter {
                     item.optDouble("monounsaturatedFat", 0),
                     item.optDouble("polyunsaturatedFat", 0),
                     unit,
-                    unitAmount
+                    unitAmount,
+                    category
             ));
         }
 
@@ -129,4 +142,3 @@ public final class FoodSeedImporter {
         }
     }
 }
-

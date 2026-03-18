@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#80FFFFFF" /> <!-- 半透明白色，80 表示透明度（00 全透明~FF 不透明） -->
-    <corners android:radius="12dp" />
-</shape>

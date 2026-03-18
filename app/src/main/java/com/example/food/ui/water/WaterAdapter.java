@@ -9,68 +9,47 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food.R;
-import com.example.food.db.dao.WaterRecordDao;
+import com.example.food.data.repository.WaterRepository;
 import com.example.food.db.entity.WaterRecord;
 import com.example.food.utils.DateUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-/**
- * 饮水记录适配器
- * 用于RecyclerView展示饮水记录列表
- */
 public class WaterAdapter extends RecyclerView.Adapter<WaterAdapter.ViewHolder> {
 
-    private Context context;
-    private List<WaterRecord> waterRecords = new ArrayList<>();
-    private WaterRecordDao waterRecordDao;
-    private OnItemDeleteListener onItemDeleteListener;
-
-    /**
-     * 删除记录监听器接口
-     */
     public interface OnItemDeleteListener {
-        /**
-         * 当记录被删除时调用
-         */
         void onItemDeleted();
     }
+
+    private final Context context;
+    private final List<WaterRecord> waterRecords = new ArrayList<>();
+    private WaterRepository waterRepository;
+    private OnItemDeleteListener onItemDeleteListener;
 
     public WaterAdapter(Context context) {
         this.context = context;
     }
 
-    /**
-     * 设置删除监听器
-     * @param listener 删除监听器
-     */
     public void setOnItemDeleteListener(OnItemDeleteListener listener) {
         this.onItemDeleteListener = listener;
     }
 
-    /**
-     * 设置WaterRecordDao实例
-     * @param dao WaterRecordDao实例
-     */
-    public void setWaterRecordDao(WaterRecordDao dao) {
-        this.waterRecordDao = dao;
+    public void setRepository(WaterRepository repository) {
+        this.waterRepository = repository;
     }
 
-    /**
-     * 设置新的饮水记录数据
-     * @param records 新的饮水记录列表
-     */
     public void setData(List<WaterRecord> records) {
-        // 创建新的列表副本，避免引用问题
+        List<WaterRecord> newRecords = records == null ? new ArrayList<>() : new ArrayList<>(records);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallback(this.waterRecords, newRecords));
         this.waterRecords.clear();
-        if (records != null && !records.isEmpty()) {
-            this.waterRecords.addAll(records);
-        }
-        notifyDataSetChanged();
+        this.waterRecords.addAll(newRecords);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -83,56 +62,32 @@ public class WaterAdapter extends RecyclerView.Adapter<WaterAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WaterRecord record = waterRecords.get(position);
-        // 使用24小时制时间格式，与设计稿保持一致
         holder.timeTextView.setText(DateUtils.formatDate(record.getTime(), DateUtils.DATE_FORMAT_HM));
-        // 设置水量文本，使用蓝色字体
-        holder.amountTextView.setText(String.format("%.0fml", record.getAmount()));
-        
-        // 设置长按事件
-        holder.itemView.setOnLongClickListener(v -> {
-            showDeleteDialog(record, position);
-            return true;
-        });
+        holder.amountTextView.setText(String.format(Locale.CHINA, "%.0f ml", record.getAmount()));
+        holder.deleteButton.setOnClickListener(v -> showDeleteDialog(record));
     }
 
-    /**
-     * 显示删除确认对话框
-     */
-    private void showDeleteDialog(WaterRecord record, int position) {
+    private void showDeleteDialog(WaterRecord record) {
         new AlertDialog.Builder(context)
-                .setTitle("删除记录")
-                .setMessage("确定要删除这条饮水记录吗？")
-                .setPositiveButton("删除", (dialog, which) -> {
-                    deleteWaterRecord(record, position);
-                })
-                .setNegativeButton("取消", null)
+                .setTitle(R.string.water_delete_title)
+                .setMessage(R.string.water_delete_message)
+                .setPositiveButton(R.string.water_delete_action, (dialog, which) -> deleteWaterRecord(record))
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
-    /**
-     * 删除饮水记录
-     */
-    private void deleteWaterRecord(WaterRecord record, int position) {
-        // 确保waterRecordDao不为null
-        if (waterRecordDao == null) {
-            Toast.makeText(context, "数据库初始化失败，无法删除记录", Toast.LENGTH_SHORT).show();
+    private void deleteWaterRecord(WaterRecord record) {
+        if (waterRepository == null) {
+            Toast.makeText(context, R.string.water_delete_repo_missing, Toast.LENGTH_SHORT).show();
             return;
         }
-        
-        new Thread(() -> {
-            waterRecordDao.delete(record);
-            // 在主线程更新UI
-            ((android.app.Activity) context).runOnUiThread(() -> {
-                waterRecords.remove(position);
-                notifyItemRemoved(position);
-                Toast.makeText(context, "删除成功", Toast.LENGTH_SHORT).show();
-                
-                // 通知Fragment更新进度条
-                if (onItemDeleteListener != null) {
-                    onItemDeleteListener.onItemDeleted();
-                }
-            });
-        }).start();
+
+        waterRepository.delete(record, () -> {
+            Toast.makeText(context, R.string.water_delete_success, Toast.LENGTH_SHORT).show();
+            if (onItemDeleteListener != null) {
+                onItemDeleteListener.onItemDeleted();
+            }
+        });
     }
 
     @Override
@@ -141,13 +96,48 @@ public class WaterAdapter extends RecyclerView.Adapter<WaterAdapter.ViewHolder> 
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView timeTextView;
-        TextView amountTextView;
+        final TextView timeTextView;
+        final TextView amountTextView;
+        final TextView deleteButton;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             timeTextView = itemView.findViewById(R.id.tv_water_time);
             amountTextView = itemView.findViewById(R.id.tv_water_amount);
+            deleteButton = itemView.findViewById(R.id.btn_delete_water);
+        }
+    }
+
+    private static class DiffCallback extends DiffUtil.Callback {
+        private final List<WaterRecord> oldList;
+        private final List<WaterRecord> newList;
+
+        DiffCallback(List<WaterRecord> oldList, List<WaterRecord> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            return oldList.get(oldItemPosition).getId() == newList.get(newItemPosition).getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            WaterRecord oldItem = oldList.get(oldItemPosition);
+            WaterRecord newItem = newList.get(newItemPosition);
+            return Double.compare(oldItem.getAmount(), newItem.getAmount()) == 0
+                    && oldItem.getTime().equals(newItem.getTime());
         }
     }
 }

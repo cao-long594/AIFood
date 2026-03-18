@@ -1,8 +1,10 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+﻿<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.Food" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorSecondary">@color/mint_primary</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/home_page_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/home_page_background</item>
         <item name="materialCalendarTheme">@style/ThemeOverlay.Food.MaterialCalendar</item>
     </style>
 

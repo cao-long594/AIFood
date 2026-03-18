@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_category_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="@color/home_surface_alt"
+    app:cardCornerRadius="@dimen/ui_card_radius_md"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/ui_card_padding_sm"
+        android:paddingTop="10dp"
+        android:paddingEnd="@dimen/ui_card_padding_sm"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:id="@+id/tv_category_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="false"
+            android:textColor="@color/home_text_secondary"
+            android:textSize="@dimen/ui_text_caption" />
+
+        <ImageView
+            android:id="@+id/iv_category_arrow"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="@string/food_category_expand_desc"
+            android:src="@drawable/meal_ic_chevron_up"
+            app:tint="@color/primary_color" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,20 +1,13 @@
 package com.example.food.ui.history;
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-
-import com.example.food.db.AppDatabase;
-import com.example.food.db.dao.MealRecordDao;
-import com.example.food.db.entity.MealRecord;
 import com.example.food.utils.DateUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 public class HistoryViewModel {
 
@@ -24,287 +17,246 @@ public class HistoryViewModel {
         MONTH
     }
 
-    public interface OnHistoryStateLoadedListener {
-        void onStateLoaded(HistoryUiState state);
-    }
-
-    private final MealRecordDao mealRecordDao;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-
-    public HistoryViewModel(Context context) {
-        this.mealRecordDao = AppDatabase.getInstance(context.getApplicationContext()).mealRecordDao();
-    }
+    private static final String FORMAT_FULL_DAY = "yyyy年M月d日";
+    private static final String FORMAT_MONTH_DAY = "M月d日";
+    private static final String FORMAT_FULL_MONTH = "yyyy年M月";
 
     public Date resolveAnchorDate(long anchorDateMillis) {
         return DateUtils.getDateStart(new Date(anchorDateMillis));
     }
 
-    public void loadHistoryState(Date anchorDate,
-                                 HistoryViewType viewType,
-                                 OnHistoryStateLoadedListener listener) {
-        final Date safeAnchorDate = DateUtils.getDateStart(anchorDate == null ? new Date() : anchorDate);
-
-        new Thread(() -> {
-            DateRange visibleRange = calculateRange(safeAnchorDate, viewType);
-            List<MealRecord> records = mealRecordDao.getRecordsByDateRange(visibleRange.startInclusive, visibleRange.endExclusive);
-
-            HistoryUiState state = new HistoryUiState(
-                    safeAnchorDate,
-                    viewType,
-                    visibleRange,
-                    buildDisplayTitle(safeAnchorDate, viewType, visibleRange),
-                    buildEmptyMessage(viewType),
-                    buildRecordItems(records),
-                    buildChartPoints(records, visibleRange, viewType, ChartMetric.CALORIES),
-                    buildChartPoints(records, visibleRange, viewType, ChartMetric.CARBOHYDRATE)
-            );
-
-            mainHandler.post(() -> {
-                if (listener != null) {
-                    listener.onStateLoaded(state);
-                }
-            });
-        }).start();
+    public HistoryViewType resolveViewType(String value) {
+        if (value == null || value.isEmpty()) {
+            return HistoryViewType.DAY;
+        }
+        try {
+            return HistoryViewType.valueOf(value);
+        } catch (IllegalArgumentException exception) {
+            return HistoryViewType.DAY;
+        }
     }
 
-    private DateRange calculateRange(Date anchorDate, HistoryViewType viewType) {
+    public String buildSelectionSummary(Date anchorDate, HistoryViewType viewType) {
+        if (viewType == HistoryViewType.DAY) {
+            return format(anchorDate, FORMAT_FULL_DAY);
+        }
+        if (viewType == HistoryViewType.WEEK) {
+            Date weekStart = DateUtils.getWeekStart(anchorDate);
+            Date weekEnd = DateUtils.getDateStart(DateUtils.getWeekEnd(anchorDate));
+            String end = isSameYear(weekStart, weekEnd)
+                    ? format(weekEnd, FORMAT_MONTH_DAY)
+                    : format(weekEnd, FORMAT_FULL_DAY);
+            return format(weekStart, FORMAT_FULL_DAY) + " 至 " + end;
+        }
+        return format(DateUtils.getMonthStart(anchorDate), FORMAT_FULL_MONTH);
+    }
+
+    public MonthSectionsResult buildMonthSections(Date selectedDate,
+                                                  Date today,
+                                                  HistoryViewType viewType,
+                                                  int monthsBefore,
+                                                  int monthsAfter) {
+        Date selectedMonthStart = DateUtils.getMonthStart(selectedDate);
+        List<MonthSection> sections = new ArrayList<>();
+        int selectedIndex = 0;
+
+        for (int offset = -monthsBefore; offset <= monthsAfter; offset++) {
+            Date monthStart = shiftMonth(selectedMonthStart, offset);
+            if (offset == 0) {
+                selectedIndex = sections.size();
+            }
+            sections.add(buildMonthSection(monthStart, selectedDate, today, viewType));
+        }
+        return new MonthSectionsResult(sections, selectedIndex);
+    }
+
+    public YearSectionsResult buildYearSections(Date selectedDate,
+                                                Date today,
+                                                int yearsBefore,
+                                                int yearsAfter) {
+        int selectedYear = DateUtils.getYear(selectedDate);
+        List<YearSection> sections = new ArrayList<>();
+        int selectedIndex = 0;
+
+        for (int year = selectedYear - yearsBefore; year <= selectedYear + yearsAfter; year++) {
+            if (year == selectedYear) {
+                selectedIndex = sections.size();
+            }
+            sections.add(buildYearSection(year, selectedDate, today));
+        }
+        return new YearSectionsResult(sections, selectedIndex);
+    }
+
+    private MonthSection buildMonthSection(Date monthStart,
+                                           Date selectedDate,
+                                           Date today,
+                                           HistoryViewType viewType) {
+        Calendar[] calendars = DateUtils.getMonthDates(DateUtils.getYear(monthStart), DateUtils.getMonth(monthStart));
+        List<CalendarCell> cells = new ArrayList<>(calendars.length);
+        boolean weekMode = viewType == HistoryViewType.WEEK;
+
+        Date todayStart = DateUtils.getDateStart(today);
+
+        for (Calendar calendar : calendars) {
+            Date cellDate = DateUtils.getDateStart(calendar.getTime());
+            boolean isToday = DateUtils.isSameDay(cellDate, todayStart);
+            boolean isSelected = DateUtils.isSameDay(cellDate, selectedDate) && !isToday;
+            boolean isSelectedWeek = weekMode && DateUtils.isSameWeek(cellDate, selectedDate);
+            boolean isCurrentWeek = weekMode && DateUtils.isSameWeek(cellDate, todayStart);
+            int compare = cellDate.compareTo(todayStart);
+
+            cells.add(new CalendarCell(
+                    cellDate,
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    DateUtils.isSameMonth(cellDate, monthStart),
+                    isToday,
+                    isSelected,
+                    isCurrentWeek,
+                    isSelectedWeek,
+                    compare < 0,
+                    compare > 0
+            ));
+        }
+
+        return new MonthSection(monthStart, format(monthStart, FORMAT_FULL_MONTH), cells);
+    }
+
+    private YearSection buildYearSection(int year, Date selectedDate, Date today) {
+        List<MonthCell> months = new ArrayList<>(12);
+        Date currentMonthStart = DateUtils.getMonthStart(today);
+        Date selectedMonthStart = DateUtils.getMonthStart(selectedDate);
+
+        for (int month = 0; month < 12; month++) {
+            Date monthStart = DateUtils.createDate(year, month, 1);
+            boolean isCurrentMonth = DateUtils.isSameMonth(monthStart, currentMonthStart);
+            boolean isSelectedMonth = DateUtils.isSameMonth(monthStart, selectedMonthStart) && !isCurrentMonth;
+            int compare = monthStart.compareTo(currentMonthStart);
+
+            months.add(new MonthCell(
+                    month,
+                    monthStart,
+                    (month + 1) + "月",
+                    isSelectedMonth,
+                    isCurrentMonth,
+                    compare < 0,
+                    compare > 0
+            ));
+        }
+        return new YearSection(year, months);
+    }
+
+    private Date shiftMonth(Date origin, int offset) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(DateUtils.getDateStart(anchorDate));
-
-        if (viewType == HistoryViewType.DAY) {
-            Date start = calendar.getTime();
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-            return new DateRange(start, calendar.getTime());
-        }
-
-        if (viewType == HistoryViewType.WEEK) {
-            calendar.setFirstDayOfWeek(Calendar.MONDAY);
-            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-            int offset = dayOfWeek == Calendar.SUNDAY ? -6 : Calendar.MONDAY - dayOfWeek;
-            calendar.add(Calendar.DAY_OF_MONTH, offset);
-            Date start = DateUtils.getDateStart(calendar.getTime());
-            calendar.setTime(start);
-            calendar.add(Calendar.DAY_OF_MONTH, 7);
-            return new DateRange(start, calendar.getTime());
-        }
-
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        Date start = DateUtils.getDateStart(calendar.getTime());
-        calendar.setTime(start);
-        calendar.add(Calendar.MONTH, 1);
-        return new DateRange(start, calendar.getTime());
+        calendar.setTime(origin);
+        calendar.add(Calendar.MONTH, offset);
+        return DateUtils.getMonthStart(calendar.getTime());
     }
 
-    private String buildDisplayTitle(Date anchorDate, HistoryViewType viewType, DateRange range) {
-        if (viewType == HistoryViewType.DAY) {
-            return DateUtils.formatDate(anchorDate, "yyyy年M月d日");
-        }
-        if (viewType == HistoryViewType.WEEK) {
-            Calendar endCalendar = Calendar.getInstance();
-            endCalendar.setTime(range.endExclusive);
-            endCalendar.add(Calendar.DAY_OF_MONTH, -1);
-            return DateUtils.formatDate(range.startInclusive, "yyyy年M月d日")
-                    + "至"
-                    + DateUtils.formatDate(endCalendar.getTime(), "M月d日");
-        }
-        return DateUtils.formatDate(anchorDate, "yyyy年M月");
+    private String format(Date date, String pattern) {
+        return new SimpleDateFormat(pattern, Locale.CHINA).format(date);
     }
 
-    private String buildEmptyMessage(HistoryViewType viewType) {
-        if (viewType == HistoryViewType.DAY) {
-            return "当天暂无记录";
-        }
-        if (viewType == HistoryViewType.WEEK) {
-            return "本周暂无记录";
-        }
-        return "本月暂无记录";
+    private boolean isSameYear(Date first, Date second) {
+        return DateUtils.getYear(first) == DateUtils.getYear(second);
     }
 
-    private List<HistoryRecordItem> buildRecordItems(List<MealRecord> records) {
-        List<HistoryRecordItem> items = new ArrayList<>();
-        for (MealRecord record : records) {
-            items.add(new HistoryRecordItem(
-                    MealRecord.getMealTypeName(record.getMealType()),
-                    record.getFoodName(),
-                    DateUtils.formatDate(record.getDate(), "M月d日 HH:mm"),
-                    record.getCalories(),
-                    record.getCarbohydrate()
-            ));
-        }
-        return items;
-    }
+    public static class MonthSectionsResult {
+        public final List<MonthSection> sections;
+        public final int selectedSectionIndex;
 
-    private List<ChartPoint> buildChartPoints(List<MealRecord> records,
-                                              DateRange range,
-                                              HistoryViewType viewType,
-                                              ChartMetric metric) {
-        if (viewType == HistoryViewType.DAY) {
-            return buildDayChartPoints(records, metric);
-        }
-        if (viewType == HistoryViewType.WEEK) {
-            return buildContinuousDateChartPoints(records, range, "M/d", metric);
-        }
-        return buildContinuousDateChartPoints(records, range, "d", metric);
-    }
-
-    private List<ChartPoint> buildDayChartPoints(List<MealRecord> records, ChartMetric metric) {
-        int[] mealTypes = {
-                MealRecord.MEAL_TYPE_BREAKFAST,
-                MealRecord.MEAL_TYPE_LUNCH,
-                MealRecord.MEAL_TYPE_AFTERNOON_SNACK,
-                MealRecord.MEAL_TYPE_DINNER,
-                MealRecord.MEAL_TYPE_BEDTIME
-        };
-        Map<Integer, Double> aggregates = new LinkedHashMap<>();
-        for (int mealType : mealTypes) {
-            aggregates.put(mealType, 0d);
-        }
-
-        for (MealRecord record : records) {
-            if (!aggregates.containsKey(record.getMealType())) {
-                aggregates.put(record.getMealType(), 0d);
-            }
-            aggregates.put(record.getMealType(), aggregates.get(record.getMealType()) + extractMetric(record, metric));
-        }
-
-        List<ChartPoint> points = new ArrayList<>();
-        for (Map.Entry<Integer, Double> entry : aggregates.entrySet()) {
-            if (entry.getValue() <= 0) {
-                continue;
-            }
-            points.add(new ChartPoint(shortenMealLabel(MealRecord.getMealTypeName(entry.getKey())), entry.getValue()));
-        }
-        return points;
-    }
-
-    private List<ChartPoint> buildContinuousDateChartPoints(List<MealRecord> records,
-                                                            DateRange range,
-                                                            String labelPattern,
-                                                            ChartMetric metric) {
-        Map<Long, Double> aggregates = new LinkedHashMap<>();
-        Calendar cursor = Calendar.getInstance();
-        cursor.setTime(range.startInclusive);
-
-        while (cursor.getTime().before(range.endExclusive)) {
-            Date currentDate = DateUtils.getDateStart(cursor.getTime());
-            aggregates.put(currentDate.getTime(), 0d);
-            cursor.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        for (MealRecord record : records) {
-            long key = DateUtils.getDateStart(record.getDate()).getTime();
-            if (aggregates.containsKey(key)) {
-                aggregates.put(key, aggregates.get(key) + extractMetric(record, metric));
-            }
-        }
-
-        List<ChartPoint> points = new ArrayList<>();
-        for (Map.Entry<Long, Double> entry : aggregates.entrySet()) {
-            points.add(new ChartPoint(
-                    DateUtils.formatDate(new Date(entry.getKey()), labelPattern),
-                    entry.getValue()
-            ));
-        }
-        return points;
-    }
-
-    private double extractMetric(MealRecord record, ChartMetric metric) {
-        if (metric == ChartMetric.CALORIES) {
-            return record.getCalories();
-        }
-        return record.getCarbohydrate();
-    }
-
-    private String shortenMealLabel(String mealName) {
-        if ("早餐".equals(mealName)) {
-            return "早";
-        }
-        if ("午餐".equals(mealName)) {
-            return "午";
-        }
-        if ("下午加餐".equals(mealName)) {
-            return "加";
-        }
-        if ("晚餐".equals(mealName)) {
-            return "晚";
-        }
-        if ("睡前餐".equals(mealName)) {
-            return "夜";
-        }
-        return mealName;
-    }
-
-    private enum ChartMetric {
-        CALORIES,
-        CARBOHYDRATE
-    }
-
-    public static class HistoryUiState {
-        public final Date anchorDate;
-        public final HistoryViewType viewType;
-        public final DateRange visibleRange;
-        public final String displayTitle;
-        public final String emptyMessage;
-        public final List<HistoryRecordItem> records;
-        public final List<ChartPoint> calorieChartPoints;
-        public final List<ChartPoint> carbChartPoints;
-
-        public HistoryUiState(Date anchorDate,
-                              HistoryViewType viewType,
-                              DateRange visibleRange,
-                              String displayTitle,
-                              String emptyMessage,
-                              List<HistoryRecordItem> records,
-                              List<ChartPoint> calorieChartPoints,
-                              List<ChartPoint> carbChartPoints) {
-            this.anchorDate = anchorDate;
-            this.viewType = viewType;
-            this.visibleRange = visibleRange;
-            this.displayTitle = displayTitle;
-            this.emptyMessage = emptyMessage;
-            this.records = records;
-            this.calorieChartPoints = calorieChartPoints;
-            this.carbChartPoints = carbChartPoints;
+        public MonthSectionsResult(List<MonthSection> sections, int selectedSectionIndex) {
+            this.sections = sections;
+            this.selectedSectionIndex = selectedSectionIndex;
         }
     }
 
-    public static class DateRange {
-        public final Date startInclusive;
-        public final Date endExclusive;
+    public static class YearSectionsResult {
+        public final List<YearSection> sections;
+        public final int selectedSectionIndex;
 
-        public DateRange(Date startInclusive, Date endExclusive) {
-            this.startInclusive = startInclusive;
-            this.endExclusive = endExclusive;
+        public YearSectionsResult(List<YearSection> sections, int selectedSectionIndex) {
+            this.sections = sections;
+            this.selectedSectionIndex = selectedSectionIndex;
         }
     }
 
-    public static class HistoryRecordItem {
-        public final String mealTypeLabel;
-        public final String foodName;
-        public final String timeLabel;
-        public final double calories;
-        public final double carbohydrate;
+    public static class MonthSection {
+        public final Date monthStart;
+        public final String title;
+        public final List<CalendarCell> cells;
 
-        public HistoryRecordItem(String mealTypeLabel,
-                                 String foodName,
-                                 String timeLabel,
-                                 double calories,
-                                 double carbohydrate) {
-            this.mealTypeLabel = mealTypeLabel;
-            this.foodName = foodName;
-            this.timeLabel = timeLabel;
-            this.calories = calories;
-            this.carbohydrate = carbohydrate;
+        public MonthSection(Date monthStart, String title, List<CalendarCell> cells) {
+            this.monthStart = monthStart;
+            this.title = title;
+            this.cells = cells;
         }
     }
 
-    public static class ChartPoint {
+    public static class CalendarCell {
+        public final Date date;
+        public final int dayOfMonth;
+        public final boolean inCurrentMonth;
+        public final boolean today;
+        public final boolean selectedDate;
+        public final boolean inCurrentWeek;
+        public final boolean inSelectedWeek;
+        public final boolean past;
+        public final boolean future;
+
+        public CalendarCell(Date date,
+                            int dayOfMonth,
+                            boolean inCurrentMonth,
+                            boolean today,
+                            boolean selectedDate,
+                            boolean inCurrentWeek,
+                            boolean inSelectedWeek,
+                            boolean past,
+                            boolean future) {
+            this.date = date;
+            this.dayOfMonth = dayOfMonth;
+            this.inCurrentMonth = inCurrentMonth;
+            this.today = today;
+            this.selectedDate = selectedDate;
+            this.inCurrentWeek = inCurrentWeek;
+            this.inSelectedWeek = inSelectedWeek;
+            this.past = past;
+            this.future = future;
+        }
+    }
+
+    public static class YearSection {
+        public final int year;
+        public final List<MonthCell> months;
+
+        public YearSection(int year, List<MonthCell> months) {
+            this.year = year;
+            this.months = months;
+        }
+    }
+
+    public static class MonthCell {
+        public final int month;
+        public final Date monthStart;
         public final String label;
-        public final double value;
+        public final boolean selected;
+        public final boolean currentMonth;
+        public final boolean past;
+        public final boolean future;
 
-        public ChartPoint(String label, double value) {
+        public MonthCell(int month,
+                         Date monthStart,
+                         String label,
+                         boolean selected,
+                         boolean currentMonth,
+                         boolean past,
+                         boolean future) {
+            this.month = month;
+            this.monthStart = monthStart;
             this.label = label;
-            this.value = value;
+            this.selected = selected;
+            this.currentMonth = currentMonth;
+            this.past = past;
+            this.future = future;
         }
     }
 }

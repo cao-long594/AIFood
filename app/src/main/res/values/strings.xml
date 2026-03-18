@@ -1,13 +1,71 @@
 <resources>
-    <string name="app_name">Food</string>
-    <string name="home_title">营养日记</string>
-    <string name="home_calorie_card_label">今日热量摄入</string>
-    <string name="home_nutrient_distribution_title">营养素分布</string>
-    <string name="home_nutrient_distribution_subtitle">查看蛋白质、碳水和脂肪的摄入结构</string>
-    <string name="home_macro_calorie_title">营养素热量分布</string>
-    <string name="home_macro_calorie_subtitle">按热量占比查看三大营养素贡献</string>
-    <string name="home_completion_label">目标达成</string>
-    <string name="home_protein">蛋白质</string>
-    <string name="home_carb">碳水</string>
-    <string name="home_fat">脂肪</string>
+    <string name="app_name">AI-Food</string>
+
+    <string name="home_completion_label">完成度</string>
+    <string name="home_macro_target_carb">&#30446;&#26631; 45%-65%</string>
+    <string name="home_macro_target_protein">&#30446;&#26631; 10%-35%</string>
+    <string name="home_macro_target_fat">&#30446;&#26631; 20%-35%</string>
+
+    <string name="history_title">历史数据</string>
+    <string name="history_day_tab">日视图</string>
+    <string name="history_week_tab">周视图</string>
+    <string name="history_month_tab">月视图</string>
+    <string name="history_back">返回</string>
+
+    <string name="meal_expand">展开</string>
+    <string name="meal_collapse">收起</string>
+    <string name="meal_record_title">饮食记录</string>
+    <string name="meal_add_title">添加到%1$s</string>
+    <string name="meal_add_subtitle">%1$s %2$s</string>
+    <string name="meal_add_tip">从食物库中选择后直接记录到当前餐次</string>
+    <string name="meal_add_empty_state">食物库还是空的，先去添加几个常吃食物吧</string>
+    <string name="meal_add_amount_hint">输入重量（克）</string>
+    <string name="meal_add_amount_title">添加食物：%1$s</string>
+    <string name="meal_add_amount_message">输入本次食用重量后会直接添加到当前餐次</string>
+    <string name="meal_add_amount_error_empty">请输入食物重量</string>
+    <string name="meal_add_amount_error_invalid">请输入大于 0 的重量</string>
+    <string name="meal_add_amount_error_number">请输入有效数字</string>
+    <string name="meal_add_success">已添加到餐次：%1$s</string>
+    <string name="meal_ratio_breakfast">参考：20%-25%</string>
+    <string name="meal_ratio_main">参考：25%-30%</string>
+    <string name="meal_ratio_snack_small">参考：5%-10%</string>
+    <string name="meal_ratio_snack_medium">参考：10%-15%</string>
+    <string name="meal_ratio_default">参考：0%</string>
+    <string name="meal_edit_amount_title">修改食物重量</string>
+    <string name="meal_edit_amount_hint">请输入重量（克）</string>
+    <string name="meal_edit_amount_error_empty">请输入食物重量</string>
+    <string name="meal_edit_amount_error_number">请输入有效数字</string>
+    <string name="meal_edit_success">修改成功</string>
+    <string name="meal_edit_fail">修改失败，请重试</string>
+    <string name="meal_delete_title">删除确认</string>
+    <string name="meal_delete_message">确定要删除 %1$s 吗？</string>
+    <string name="meal_delete_action">删除</string>
+    <string name="meal_delete_success">删除成功</string>
+
+    <string name="foodbank_title">食物库</string>
+    <string name="foodbank_subtitle">收藏常吃食物，快速检索并维护营养数据</string>
+    <string name="foodbank_empty_state">还没有食物，点击右下角先添加一个吧</string>
+    <string name="food_deleted">食物已删除</string>
+    <string name="food_category_expand_desc">分类展开状态</string>
+    <string name="search_hint_food">搜索食物名称</string>
+    <string name="search_no_result">没有找到匹配的食物，换个关键词试试</string>
+
+    <string name="fab_add_food_desc">添加食物</string>
+
+    <string name="water_amount_invalid">请输入有效的饮水量</string>
+    <string name="water_amount_empty">请输入饮水量</string>
+    <string name="water_amount_nan">请输入有效的数字</string>
+    <string name="water_goal_invalid">请输入有效的目标值</string>
+    <string name="water_goal_input_hint">&#30446;&#26631; ml</string>
+    <string name="water_add_success">添加成功</string>
+    <string name="water_delete_title">删除记录</string>
+    <string name="water_delete_message">确定要删除这条饮水记录吗？</string>
+    <string name="water_delete_action">删除</string>
+    <string name="water_delete_success">删除成功</string>
+    <string name="water_delete_repo_missing">数据层未初始化，无法删除记录</string>
+
+    <string name="food_add_name_required">请输入食物名称</string>
+    <string name="food_update_success">更新成功</string>
+    <string name="food_add_success">添加成功</string>
+    <string name="food_number_invalid">请输入有效的数值</string>
 </resources>

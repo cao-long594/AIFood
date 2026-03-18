@@ -1,24 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    
+﻿<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_menu_home"
+        android:icon="@drawable/ic_nav_home"
         android:title="首页" />
-    
+
     <item
         android:id="@+id/nav_meal"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/ic_nav_meal"
         android:title="饮食" />
-    
+
     <item
         android:id="@+id/nav_water"
-        android:icon="@drawable/ic_menu_drink"
+        android:icon="@drawable/ic_nav_water"
         android:title="饮水" />
-    
+
     <item
         android:id="@+id/nav_foodbank"
-        android:icon="@android:drawable/ic_menu_recent_history"
+        android:icon="@drawable/ic_nav_foodbank"
         android:title="食物库" />
-
 </menu>
+

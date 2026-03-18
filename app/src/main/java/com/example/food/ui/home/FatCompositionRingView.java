@@ -14,24 +14,27 @@ import androidx.core.content.ContextCompat;
 
 import com.example.food.R;
 
+import java.util.Locale;
+
 public class FatCompositionRingView extends View {
 
-    private static final float DEFAULT_STROKE_DP = 18f;
-    private static final float DEFAULT_GAP_ANGLE = 6f;
+    private static final float DEFAULT_STROKE_DP = 24f;
+    private static final float DEFAULT_GAP_ANGLE = 4f;
 
     private final Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint segmentPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint dotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint centerOuterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint centerInnerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint markerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint subtitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint valuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF arcBounds = new RectF();
 
     private final int saturatedColor;
     private final int monoColor;
     private final int polyColor;
     private final int trackColor;
-    private final int lineColor;
-    private final int textColor;
     private final Bitmap centerIcon;
 
     private float strokeWidthPx;
@@ -39,6 +42,7 @@ public class FatCompositionRingView extends View {
     private float saturated = 0f;
     private float mono = 0f;
     private float poly = 0f;
+    private float legendStartX;
 
     public FatCompositionRingView(Context context) {
         this(context, null);
@@ -54,8 +58,6 @@ public class FatCompositionRingView extends View {
         monoColor = ContextCompat.getColor(context, R.color.mono_unsaturated_fat);
         polyColor = ContextCompat.getColor(context, R.color.poly_unsaturated_fat);
         trackColor = ContextCompat.getColor(context, R.color.home_ring_track);
-        lineColor = 0xFFA8B3BF;
-        textColor = ContextCompat.getColor(context, R.color.home_text_primary);
         strokeWidthPx = dpToPx(DEFAULT_STROKE_DP);
         centerIcon = BitmapFactory.decodeResource(getResources(), R.drawable.meal_ic_fat);
         initPaints();
@@ -71,16 +73,20 @@ public class FatCompositionRingView extends View {
         segmentPaint.setStrokeCap(Paint.Cap.ROUND);
         segmentPaint.setStrokeWidth(strokeWidthPx);
 
-        linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setStrokeWidth(dpToPx(1.4f));
-        linePaint.setColor(lineColor);
+        centerOuterPaint.setColor(0xFFF7E9CD);
+        centerInnerPaint.setColor(0xFFFFC25C);
 
-        dotPaint.setStyle(Paint.Style.FILL);
-        dotPaint.setColor(lineColor);
+        markerPaint.setStyle(Paint.Style.FILL);
 
-        textPaint.setColor(textColor);
-        textPaint.setTextSize(dpToPx(17f));
-        textPaint.setFakeBoldText(true);
+        titlePaint.setColor(ContextCompat.getColor(getContext(), R.color.home_text_primary));
+        titlePaint.setTextSize(dpToPx(14f));
+        titlePaint.setFakeBoldText(true);
+
+        subtitlePaint.setColor(ContextCompat.getColor(getContext(), R.color.home_text_secondary));
+        subtitlePaint.setTextSize(dpToPx(12f));
+
+        valuePaint.setTextSize(dpToPx(17f));
+        valuePaint.setFakeBoldText(true);
     }
 
     public void setComposition(double saturated, double mono, double poly) {
@@ -93,60 +99,88 @@ public class FatCompositionRingView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        float sideInset = strokeWidthPx / 2f + dpToPx(28f);
-        float topInset = strokeWidthPx / 2f + dpToPx(22f);
-        float bottomInset = strokeWidthPx / 2f + dpToPx(50f);
+        float horizontalInset = dpToPx(8f);
+        float verticalInset = dpToPx(14f);
+        float ringDiameter = Math.min(h - verticalInset * 2f, w * 0.43f);
 
-        float availableWidth = Math.max(0f, w - sideInset * 2f);
-        float availableHeight = Math.max(0f, h - topInset - bottomInset);
-        float diameter = Math.max(0f, Math.min(availableWidth, availableHeight));
-
-        float left = (w - diameter) / 2f;
-        float top = topInset;
-        float right = left + diameter;
-        float bottom = top + diameter;
-        arcBounds.set(left, top, right, bottom);
+        float left = horizontalInset + strokeWidthPx / 2f;
+        float top = (h - ringDiameter) / 2f;
+        arcBounds.set(left, top, left + ringDiameter - strokeWidthPx, top + ringDiameter - strokeWidthPx);
+        legendStartX = arcBounds.right + dpToPx(24f);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         canvas.drawArc(arcBounds, -90, 360, false, trackPaint);
 
         float total = saturated + mono + poly;
-        if (total <= 0f) {
-            drawCenterIcon(canvas);
-            return;
-        }
-
-        int segmentCount = 0;
-        if (saturated > 0f) segmentCount++;
-        if (mono > 0f) segmentCount++;
-        if (poly > 0f) segmentCount++;
-
-        float totalGap = segmentCount > 1 ? gapAngle * segmentCount : 0f;
-        float availableAngle = 360f - totalGap;
-        float startAngle = -90f;
-
-        if (saturated > 0f) {
-            float sweep = availableAngle * (saturated / total);
-            drawSegment(canvas, startAngle, sweep, saturatedColor);
-            drawLabel(canvas, startAngle + sweep / 2f, "\u9971");
-            startAngle += sweep + gapAngle;
-        }
-        if (mono > 0f) {
-            float sweep = availableAngle * (mono / total);
-            drawSegment(canvas, startAngle, sweep, monoColor);
-            drawLabel(canvas, startAngle + sweep / 2f, "\u5355");
-            startAngle += sweep + gapAngle;
-        }
-        if (poly > 0f) {
-            float sweep = availableAngle * (poly / total);
-            drawSegment(canvas, startAngle, sweep, polyColor);
-            drawLabel(canvas, startAngle + sweep / 2f, "\u591A");
+        if (total > 0f) {
+            drawSegment(canvas, -90f, 360f * (saturated / total), saturatedColor);
+            float startMono = -90f + 360f * (saturated / total) + gapAngle;
+            drawSegment(canvas, startMono, 360f * (mono / total) - gapAngle, monoColor);
+            float startPoly = startMono + 360f * (mono / total);
+            drawSegment(canvas, startPoly + gapAngle, 360f * (poly / total) - gapAngle, polyColor);
         }
 
         drawCenterIcon(canvas);
+        drawLegend(canvas, total);
+    }
+
+    private void drawLegend(Canvas canvas, float total) {
+        float top = dpToPx(42f);
+        float rowHeight = dpToPx(58f);
+
+        drawLegendRow(canvas, top,
+                saturatedColor,
+                "饱和脂肪酸",
+                "建议 <10% 总热量",
+                saturated,
+                total);
+
+        drawLegendRow(canvas, top + rowHeight,
+                monoColor,
+                "单不饱和脂肪酸",
+                "橄榄油・坚果",
+                mono,
+                total);
+
+        drawLegendRow(canvas, top + rowHeight * 2f,
+                polyColor,
+                "多不饱和脂肪酸",
+                "Omega-3 ・ Omega-6",
+                poly,
+                total);
+    }
+
+    private void drawLegendRow(Canvas canvas,
+                               float y,
+                               int color,
+                               String title,
+                               String subtitle,
+                               float grams,
+                               float total) {
+        markerPaint.setColor(color);
+        float markerSize = dpToPx(10f);
+        RectF markerRect = new RectF(legendStartX, y - markerSize, legendStartX + markerSize, y);
+        canvas.drawRoundRect(markerRect, markerSize / 2f, markerSize / 2f, markerPaint);
+
+        float textX = legendStartX + dpToPx(16f);
+        canvas.drawText(title, textX, y - dpToPx(1f), titlePaint);
+        canvas.drawText(subtitle, textX, y + dpToPx(20f), subtitlePaint);
+
+        int percent = total <= 0f ? 0 : Math.round((grams / total) * 100f);
+        String percentText = String.format(Locale.CHINA, "%d%%", percent);
+        String gramText = String.format(Locale.CHINA, "%.1fg", grams);
+
+        valuePaint.setColor(color);
+        float right = getWidth() - dpToPx(8f);
+        float percentWidth = valuePaint.measureText(percentText);
+        canvas.drawText(percentText, right - percentWidth, y - dpToPx(1f), valuePaint);
+
+        float gramWidth = subtitlePaint.measureText(gramText);
+        canvas.drawText(gramText, right - gramWidth, y + dpToPx(20f), subtitlePaint);
     }
 
     private void drawSegment(Canvas canvas, float startAngle, float sweepAngle, int color) {
@@ -157,53 +191,26 @@ public class FatCompositionRingView extends View {
         canvas.drawArc(arcBounds, startAngle, sweepAngle, false, segmentPaint);
     }
 
-    private void drawLabel(Canvas canvas, float angle, String label) {
-        float radians = (float) Math.toRadians(angle);
+    private void drawCenterIcon(Canvas canvas) {
         float centerX = arcBounds.centerX();
         float centerY = arcBounds.centerY();
-        float radius = arcBounds.width() / 2f;
+        float outerRadius = arcBounds.width() * 0.17f;
+        float innerRadius = outerRadius * 0.55f;
 
-        float anchorRadius = radius + strokeWidthPx / 2f + dpToPx(6f);
-        float elbowRadius = anchorRadius + dpToPx(14f);
+        canvas.drawCircle(centerX, centerY, outerRadius, centerOuterPaint);
+        canvas.drawCircle(centerX, centerY, innerRadius, centerInnerPaint);
 
-        float startX = centerX + (float) Math.cos(radians) * anchorRadius;
-        float startY = centerY + (float) Math.sin(radians) * anchorRadius;
-        float elbowX = centerX + (float) Math.cos(radians) * elbowRadius;
-        float elbowY = centerY + (float) Math.sin(radians) * elbowRadius;
-
-        boolean toRight = elbowX >= centerX;
-        float endX = toRight ? getWidth() - dpToPx(34f) : dpToPx(34f);
-        float minY = dpToPx(28f);
-        float maxY = getHeight() - dpToPx(30f);
-        float endY = clamp(elbowY, minY, maxY);
-        float elbowClampedY = clamp(elbowY, minY, maxY);
-
-        canvas.drawLine(startX, startY, elbowX, elbowClampedY, linePaint);
-        canvas.drawLine(elbowX, elbowClampedY, endX, endY, linePaint);
-        canvas.drawCircle(startX, startY, dpToPx(3f), dotPaint);
-
-        float textWidth = textPaint.measureText(label);
-        float textX = toRight ? endX + dpToPx(6f) : endX - textWidth - dpToPx(6f);
-        float textY = clamp(endY - dpToPx(6f), dpToPx(22f), getHeight() - dpToPx(12f));
-        canvas.drawText(label, textX, textY, textPaint);
-    }
-
-    private void drawCenterIcon(Canvas canvas) {
         if (centerIcon == null) {
             return;
         }
-        float maxIconSize = arcBounds.width() * 0.40f;
-        float scale = maxIconSize / Math.max(centerIcon.getWidth(), centerIcon.getHeight());
-        float drawWidth = centerIcon.getWidth() * scale;
-        float drawHeight = centerIcon.getHeight() * scale;
-        float left = arcBounds.centerX() - drawWidth / 2f;
-        float top = arcBounds.centerY() - drawHeight / 2f;
-        RectF dst = new RectF(left, top, left + drawWidth, top + drawHeight);
+        float iconSize = innerRadius * 1.2f;
+        RectF dst = new RectF(
+                centerX - iconSize / 2f,
+                centerY - iconSize / 2f,
+                centerX + iconSize / 2f,
+                centerY + iconSize / 2f
+        );
         canvas.drawBitmap(centerIcon, null, dst, null);
-    }
-
-    private float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
     }
 
     private float dpToPx(float dp) {

@@ -1,50 +1,33 @@
 package com.example.food.ui.water;
 
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PointF;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.Nullable;
 
 import com.example.food.R;
 
-/**
- * 自定义圆形进度视图，用于显示喝水进度
- * 当用户输入喝水量时，圆形会从底部到顶部逐步被蓝色波浪填充
- */
 public class WaterCircleProgressView extends View {
-    // 视图大小相关变量
-    private int radius;
-    private PointF center = new PointF();
-    private Path clipPath = new Path();
 
-    // 进度相关变量
-    private float maxProgress = 2000; // 默认最大2000ml
-    private float currentProgress = 0;
-    private float animatedProgress = 0; // 用于动画的进度值
-    private boolean isAnimating = false;
+    private final RectF arcBounds = new RectF();
+    private final Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint progressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    // 画笔相关变量
-    private Paint backgroundPaint;
-    private Paint wavePaint;
-    private Paint borderPaint;
-    private int borderWidth = 2;
-
-    // 波浪效果相关变量
-    private Path wavePath = new Path();
-    private float wavePhase = 0f; // 波浪相位，用于动画
-    private float waveAmplitude = 25f; // 波浪幅度
-    private float waveFrequency = 0.025f; // 波浪频率
-    private ValueAnimator waveAnimator;
+    private float maxProgress = 2000f;
+    private float currentProgress = 0f;
+    private float animatedProgress = 0f;
+    private float strokeWidth;
+    private int glowColor;
+    private ValueAnimator progressAnimator;
 
     public WaterCircleProgressView(Context context) {
         super(context);
@@ -61,49 +44,40 @@ public class WaterCircleProgressView extends View {
         init(attrs);
     }
 
-    /**
-     * 初始化画笔和自定义属性
-     */
     private void init(@Nullable AttributeSet attrs) {
-        // 默认颜色值
-        int bgColor = Color.parseColor("#E0E0E0");
-        int progressColor = Color.parseColor("#4A90E2");
-        int borderColor = Color.parseColor("#BDBDBD");
+        int trackColor = Color.parseColor("#E9ECF6");
+        int progressColor = Color.parseColor("#6B7CFF");
+        glowColor = Color.parseColor("#2A6B7CFF");
+        strokeWidth = dpToPx(18f);
 
-        // 获取自定义属性
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.WaterCircleProgressView);
-            maxProgress = typedArray.getFloat(R.styleable.WaterCircleProgressView_maxProgress, 2000);
-            bgColor = typedArray.getColor(R.styleable.WaterCircleProgressView_waterBgColor, bgColor);
+            maxProgress = typedArray.getFloat(R.styleable.WaterCircleProgressView_maxProgress, maxProgress);
+            trackColor = typedArray.getColor(R.styleable.WaterCircleProgressView_waterBgColor, trackColor);
             progressColor = typedArray.getColor(R.styleable.WaterCircleProgressView_waterProgressColor, progressColor);
-            borderColor = typedArray.getColor(R.styleable.WaterCircleProgressView_borderColor, borderColor);
-            borderWidth = (int) typedArray.getDimension(R.styleable.WaterCircleProgressView_borderWidth, 2);
+            glowColor = typedArray.getColor(R.styleable.WaterCircleProgressView_borderColor, glowColor);
+            strokeWidth = typedArray.getDimension(R.styleable.WaterCircleProgressView_borderWidth, strokeWidth);
             typedArray.recycle();
         }
 
-        // 初始化背景画笔
-        backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        backgroundPaint.setColor(bgColor);
-        backgroundPaint.setStyle(Paint.Style.FILL);
+        trackPaint.setStyle(Paint.Style.STROKE);
+        trackPaint.setStrokeCap(Paint.Cap.ROUND);
+        trackPaint.setStrokeWidth(strokeWidth);
+        trackPaint.setColor(trackColor);
 
-        // 初始化波浪画笔
-        wavePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        wavePaint.setColor(progressColor);
-        wavePaint.setStyle(Paint.Style.FILL);
+        progressPaint.setStyle(Paint.Style.STROKE);
+        progressPaint.setStrokeCap(Paint.Cap.ROUND);
+        progressPaint.setStrokeWidth(strokeWidth);
+        progressPaint.setColor(progressColor);
 
-        // 初始化边框画笔
-        borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(borderColor);
-        borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(borderWidth);
-
-        // 启动波浪动画
-        startWaveAnimation();
+        glowPaint.setStyle(Paint.Style.STROKE);
+        glowPaint.setStrokeCap(Paint.Cap.ROUND);
+        glowPaint.setStrokeWidth(strokeWidth + dpToPx(6f));
+        glowPaint.setColor(glowColor);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // 强制设置为正方形，取宽高中的最小值
         int size = Math.min(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
         setMeasuredDimension(size, size);
     }
@@ -111,164 +85,78 @@ public class WaterCircleProgressView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        // 计算圆心和半径
-        center.x = getWidth() / 2f;
-        center.y = getHeight() / 2f;
-        radius = Math.min(getWidth(), getHeight()) / 2 - borderWidth;
-
-        // 创建圆形裁剪路径
-        clipPath.reset();
-        clipPath.addCircle(center.x, center.y, radius, Path.Direction.CW);
+        float inset = glowPaint.getStrokeWidth() / 2f + dpToPx(4f);
+        arcBounds.set(inset, inset, w - inset, h - inset);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        canvas.drawArc(arcBounds, -90f, 360f, false, trackPaint);
 
-        // 1. 绘制背景圆形
-        canvas.drawCircle(center.x, center.y, radius, backgroundPaint);
-
-        // 2. 绘制波浪填充区域（从底部到顶部）
-        if (animatedProgress > 0) {
-            updateWavePath();
-
-            // 保存画布状态并裁剪为圆形
-            canvas.save();
-            canvas.clipPath(clipPath);
-            canvas.drawPath(wavePath, wavePaint);
-            canvas.restore();
-        }
-
-        // 3. 绘制边框
-        canvas.drawCircle(center.x, center.y, radius, borderPaint);
-
-        // 4. 如果正在动画，继续刷新
-        if (isAnimating) {
-            invalidate();
+        float sweepAngle = maxProgress <= 0f ? 0f : Math.min(animatedProgress / maxProgress, 1f) * 360f;
+        if (sweepAngle > 0f) {
+            canvas.drawArc(arcBounds, -90f, sweepAngle, false, glowPaint);
+            canvas.drawArc(arcBounds, -90f, sweepAngle, false, progressPaint);
         }
     }
 
-    /**
-     * 更新波浪路径，实现从底部到顶部的波浪填充效果
-     */
-    private void updateWavePath() {
-        wavePath.rewind();
-
-        float progressRatio = Math.min(animatedProgress / maxProgress, 1.0f);
-
-        // 计算填充高度（从底部开始）
-        float fillHeight = 2 * radius * progressRatio;
-        float baselineY = center.y + radius - fillHeight;
-
-        // 波浪路径起点
-        wavePath.moveTo(center.x - radius, baselineY);
-
-        // 生成波浪路径
-        float startX = center.x - radius;
-        for (float x = startX; x <= center.x + radius; x++) {
-            float y = baselineY + waveAmplitude *
-                    (float) Math.sin(waveFrequency * (x - startX) + wavePhase);
-            wavePath.lineTo(x, y);
-        }
-
-        // 闭合路径形成填充区域
-        wavePath.lineTo(center.x + radius, center.y + radius);
-        wavePath.lineTo(center.x - radius, center.y + radius);
-        wavePath.close();
+    public void setCurrentProgress(float currentProgress) {
+        this.currentProgress = Math.max(0f, Math.min(currentProgress, maxProgress));
+        startProgressAnimation();
     }
 
-    /**
-     * 启动波浪动画
-     */
-    private void startWaveAnimation() {
-        waveAnimator = ValueAnimator.ofFloat(0, (float) (2 * Math.PI));
-        waveAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        waveAnimator.setDuration(2000);
-        waveAnimator.setInterpolator(new LinearInterpolator());
-        waveAnimator.addUpdateListener(animation -> {
-            wavePhase = (float) animation.getAnimatedValue();
-            invalidate();
-        });
-        waveAnimator.start();
+    public float getCurrentProgress() {
+        return currentProgress;
+    }
+
+    public float getMaxProgress() {
+        return maxProgress;
+    }
+
+    public void setMaxProgress(float maxProgress) {
+        if (maxProgress <= 0f) {
+            return;
+        }
+        this.maxProgress = maxProgress;
+        if (currentProgress > maxProgress) {
+            currentProgress = maxProgress;
+        }
+        if (animatedProgress > maxProgress) {
+            animatedProgress = maxProgress;
+        }
+        invalidate();
+    }
+
+    public float getAnimatedProgress() {
+        return animatedProgress;
+    }
+
+    public void setAnimatedProgress(float animatedProgress) {
+        this.animatedProgress = animatedProgress;
+        invalidate();
+    }
+
+    private void startProgressAnimation() {
+        if (progressAnimator != null) {
+            progressAnimator.cancel();
+        }
+        progressAnimator = ValueAnimator.ofFloat(animatedProgress, currentProgress);
+        progressAnimator.setDuration(650L);
+        progressAnimator.setInterpolator(new DecelerateInterpolator());
+        progressAnimator.addUpdateListener(animation -> setAnimatedProgress((float) animation.getAnimatedValue()));
+        progressAnimator.start();
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        // 视图从窗口分离时停止动画，防止内存泄漏
-        if (waveAnimator != null) {
-            waveAnimator.cancel();
+        if (progressAnimator != null) {
+            progressAnimator.cancel();
         }
     }
 
-    /**
-     * 设置当前进度（当前喝水量ml），带动画
-     * @param currentProgress 当前进度值
-     */
-    public void setCurrentProgress(float currentProgress) {
-        // 限制进度在0到maxProgress之间
-        this.currentProgress = Math.max(0f, Math.min(currentProgress, maxProgress));
-        startProgressAnimation();
+    private float dpToPx(float dp) {
+        return dp * getResources().getDisplayMetrics().density;
     }
-
-    /**
-     * 获取当前进度
-     * @return 当前进度值
-     */
-    public float getCurrentProgress() {
-        return currentProgress;
-    }
-
-    /**
-     * 获取最大进度
-     * @return 最大进度值
-     */
-    public float getMaxProgress() {
-        return maxProgress;
-    }
-    
-    /**
-     * 设置最大进度（目标喝水量ml）
-     * @param maxProgress 最大进度值
-     */
-    public void setMaxProgress(float maxProgress) {
-        if (maxProgress > 0) {
-            this.maxProgress = maxProgress;
-            // 如果当前进度超过新的最大进度，调整当前进度
-            if (currentProgress > maxProgress) {
-                currentProgress = maxProgress;
-            }
-            invalidate();
-        }
-    }
-
-    /**
-     * 启动进度动画
-     */
-    private void startProgressAnimation() {
-        isAnimating = true;
-        ObjectAnimator animator = ObjectAnimator.ofFloat(this, "animatedProgress", animatedProgress, currentProgress);
-        animator.setDuration(1000); // 动画持续时间1秒
-        animator.addUpdateListener(animation -> {
-            animatedProgress = (float) animation.getAnimatedValue();
-            invalidate();
-        });
-        animator.addListener(new android.animation.Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(android.animation.Animator animation) {}
-
-            @Override
-            public void onAnimationEnd(android.animation.Animator animation) {
-                isAnimating = false;
-            }
-
-            @Override
-            public void onAnimationCancel(android.animation.Animator animation) {}
-
-            @Override
-            public void onAnimationRepeat(android.animation.Animator animation) {}
-        });
-        animator.start();
-    }
-
 }

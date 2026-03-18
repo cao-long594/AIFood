@@ -1,9 +1,7 @@
-// 应用模块使用的 Gradle 插件（来自版本库别名 libs.plugins）
 plugins {
     alias(libs.plugins.android.application)
 }
 
-// Android 应用的整体构建配置
 android {
     namespace = "com.example.food"
     compileSdk = 35
@@ -38,6 +36,8 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
+    implementation(libs.lifecycle.viewmodel)
+    implementation(libs.lifecycle.livedata)
     implementation(libs.constraintlayout)
     implementation(libs.recyclerview)
     implementation(libs.viewpager2)
@@ -51,4 +51,3 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
-

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- iOS style design tokens (Dark) -->
+    <color name="token_primary">#6E6CF6</color>
+    <color name="token_primary_bg">#2C2C5A</color>
+    <color name="token_carb">#BDA3FF</color>
+    <color name="token_protein">#FFBA36</color>
+    <color name="token_fat">#FF7A7A</color>
+    <color name="token_label_primary">#FFFFFFFF</color>
+    <color name="token_label_secondary">#99EBEBF5</color>
+    <color name="token_label_tertiary">#4DEBEBF5</color>
+    <color name="token_separator">#38383A</color>
+    <color name="token_bg_primary">#000000</color>
+    <color name="token_bg_secondary">#1C1C1E</color>
+    <color name="token_bg_tertiary">#2C2C2E</color>
+
+    <color name="primary_color">@color/token_primary</color>
+    <color name="secondary_color">@color/token_bg_tertiary</color>
+
+    <color name="text_primary">@color/token_label_primary</color>
+    <color name="text_secondary">@color/token_label_secondary</color>
+    <color name="text_hint">@color/token_label_tertiary</color>
+    <color name="color_divider">@color/token_separator</color>
+    <color name="background_gray">@color/token_bg_primary</color>
+
+    <color name="carb_color">@color/token_carb</color>
+    <color name="protein_color">@color/token_protein</color>
+    <color name="fat_color">@color/token_fat</color>
+
+    <color name="home_page_background">@color/token_bg_primary</color>
+    <color name="home_surface">@color/token_bg_secondary</color>
+    <color name="home_surface_alt">@color/token_bg_tertiary</color>
+    <color name="home_text_primary">@color/token_label_primary</color>
+    <color name="home_text_secondary">@color/token_label_secondary</color>
+    <color name="home_text_tertiary">@color/token_label_tertiary</color>
+    <color name="home_text_inverse_soft">#B9B7D6</color>
+    <color name="home_divider">@color/token_separator</color>
+    <color name="home_progress_track">#3A3753</color>
+    <color name="home_ring_track">#363354</color>
+
+    <color name="history_future_text">#6F6F73</color>
+    <color name="history_week_current_fill">#3A365A</color>
+</resources>
