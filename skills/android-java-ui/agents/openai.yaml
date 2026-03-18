@@ -1,3 +1,0 @@
-﻿display_name: Android Java UI
-short_description: Build production-ready Android UI with Java + XML and Material components
-default_prompt: Generate clean Android UI code for Java-based apps using XML layouts, RecyclerView, Material components, and readable architecture.
