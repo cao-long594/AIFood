@@ -9,6 +9,7 @@ import com.example.food.db.dao.FoodDao;
 import com.example.food.db.entity.Food;
 
 import java.util.List;
+import java.util.Locale;
 
 public class FoodRepository {
 
@@ -51,6 +52,33 @@ public class FoodRepository {
         });
     }
 
+    public void findBestMatchByName(String name, Callback<Food> callback) {
+        AppExecutors.runOnIo(() -> {
+            FoodSeedImporter.ensureImported(appContext, database);
+            String normalizedName = normalizeName(name);
+            Food exactMatch = null;
+            Food containsMatch = null;
+
+            if (!normalizedName.isEmpty()) {
+                List<Food> foods = foodDao.getAllFoods();
+                for (Food food : foods) {
+                    String foodName = normalizeName(food.getName());
+                    if (foodName.equals(normalizedName)) {
+                        exactMatch = food;
+                        break;
+                    }
+                    if (containsMatch == null
+                            && (foodName.contains(normalizedName) || normalizedName.contains(foodName))) {
+                        containsMatch = food;
+                    }
+                }
+            }
+
+            Food result = exactMatch != null ? exactMatch : containsMatch;
+            AppExecutors.runOnMain(() -> callback.onResult(result));
+        });
+    }
+
     public void deleteById(int foodId, Runnable onComplete) {
         AppExecutors.runOnIo(() -> {
             foodDao.deleteById(foodId);
@@ -64,10 +92,24 @@ public class FoodRepository {
         });
     }
 
+    public void insertFoodReturningId(Food food, Callback<Long> callback) {
+        AppExecutors.runOnIo(() -> {
+            long id = foodDao.insert(food);
+            AppExecutors.runOnMain(() -> callback.onResult(id));
+        });
+    }
+
     public void updateFood(Food food, Runnable onComplete) {
         AppExecutors.runOnIo(() -> {
             foodDao.update(food);
             AppExecutors.runOnMain(onComplete);
         });
+    }
+
+    private String normalizeName(String name) {
+        if (name == null) {
+            return "";
+        }
+        return name.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
     }
 }

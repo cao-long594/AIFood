@@ -2,6 +2,22 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+fun buildConfigString(name: String): String {
+    val value = localProperties.getProperty(name).orEmpty()
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+    return "\"$value\""
+}
+
 android {
     namespace = "com.example.food"
     compileSdk = 35
@@ -17,8 +33,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "FOOD_RECOGNITION_API_URL", buildConfigString("foodRecognition.apiUrl"))
+            buildConfigField("String", "FOOD_RECOGNITION_API_KEY", buildConfigString("foodRecognition.apiKey"))
+            buildConfigField("String", "FOOD_RECOGNITION_MODEL", buildConfigString("foodRecognition.model"))
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "FOOD_RECOGNITION_API_URL", buildConfigString("foodRecognition.apiUrl"))
+            buildConfigField("String", "FOOD_RECOGNITION_API_KEY", buildConfigString("foodRecognition.apiKey"))
+            buildConfigField("String", "FOOD_RECOGNITION_MODEL", buildConfigString("foodRecognition.model"))
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -29,6 +53,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -46,6 +74,12 @@ dependencies {
     annotationProcessor(libs.room.compiler)
 
     implementation(libs.mpandroidchart)
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+    implementation(libs.okhttp)
+    implementation(libs.gson)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

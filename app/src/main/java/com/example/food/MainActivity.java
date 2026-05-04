@@ -8,7 +8,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.food.ui.home.HomeFragment;
 import com.example.food.ui.meal.MealFragment;
-import com.example.food.ui.water.WaterFragment;
 import com.example.food.ui.foodbank.FoodBankFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -41,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentStateAdapter adapter = new FragmentStateAdapter(this) {
             @Override
             public int getItemCount() {
-                return 4; // 4个Fragment
+                return 3;
             }
 
             @Override
@@ -52,8 +51,6 @@ public class MainActivity extends AppCompatActivity {
                     case 1:
                         return new MealFragment();
                     case 2:
-                        return new WaterFragment();
-                    case 3:
                         return new FoodBankFragment();
                     default:
                         return new HomeFragment();
@@ -78,9 +75,6 @@ public class MainActivity extends AppCompatActivity {
                         bottomNavigationView.setSelectedItemId(R.id.nav_meal);
                         break;
                     case 2:
-                        bottomNavigationView.setSelectedItemId(R.id.nav_water);
-                        break;
-                    case 3:
                         bottomNavigationView.setSelectedItemId(R.id.nav_foodbank);
                         break;
                 }
@@ -98,11 +92,8 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_meal) {
                 viewPager.setCurrentItem(1, false);
                 return true;
-            } else if (id == R.id.nav_water) {
-                viewPager.setCurrentItem(2, false);
-                return true;
             } else if (id == R.id.nav_foodbank) {
-                viewPager.setCurrentItem(3, false);
+                viewPager.setCurrentItem(2, false);
                 return true;
             }
             return false;

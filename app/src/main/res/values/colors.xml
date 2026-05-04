@@ -51,21 +51,4 @@
     <color name="history_future_text">#B5B5B5</color>
     <color name="history_week_current_fill">#E9E0FF</color>
 
-    <color name="water_screen_bg">#F4F7FF</color>
-    <color name="water_surface">#FFFFFFFF</color>
-    <color name="water_card_stroke">#D9E3F6</color>
-    <color name="water_primary">#5C74FF</color>
-    <color name="water_primary_deep">#3550E8</color>
-    <color name="water_primary_soft">#E8EEFF</color>
-    <color name="water_quick_action_fill">#EEF1FC</color>
-    <color name="water_quick_action_fill_pressed">#E4EAFE</color>
-    <color name="water_quick_amount_text">#3D45CC</color>
-    <color name="water_quick_unit_text">#7F879C</color>
-    <color name="water_text_primary">#16203A</color>
-    <color name="water_text_secondary">#7D8AA8</color>
-    <color name="water_ring_track">#E3EAFB</color>
-    <color name="water_ring_glow">#305C74FF</color>
-    <color name="water_record_bg">#F7F9FF</color>
-    <color name="water_delete_bg">#EDF1FB</color>
-    <color name="water_delete_bg_pressed">#FFDDE3</color>
 </resources>

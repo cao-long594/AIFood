@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,7 +20,9 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.food.R;
 import com.example.food.db.entity.MealRecord;
 import com.example.food.ui.common.SelectedDateViewModel;
+import com.example.food.ui.recognition.FoodRecognitionActivity;
 import com.example.food.utils.DateUtils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -160,7 +163,7 @@ public class MealFragment extends Fragment {
         viewPager2 = root.findViewById(R.id.viewPager2);
         tabLayout = root.findViewById(R.id.tabLayout);
 
-        root.findViewById(R.id.fab_add_food).setOnClickListener(v -> openMealAddActivity());
+        root.findViewById(R.id.fab_add_food).setOnClickListener(v -> showAddMethodSheet());
         root.findViewById(R.id.btn_toggle_calendar).setOnClickListener(v -> toggleCalendarCollapse());
     }
 
@@ -239,6 +242,59 @@ public class MealFragment extends Fragment {
         intent.putExtra("mealType", currentMealType);
         intent.putExtra("selectedDate", selectedDate.getTime());
         addFoodLauncher.launch(intent);
+    }
+
+    private void openFoodRecognitionActivity() {
+        int currentMealType = pagerAdapter == null
+                ? MealRecord.MEAL_TYPE_BREAKFAST
+                : pagerAdapter.getMealTypeByPosition(viewPager2.getCurrentItem());
+
+        Intent intent = new Intent(getContext(), FoodRecognitionActivity.class);
+        intent.putExtra("mealType", currentMealType);
+        intent.putExtra("selectedDate", selectedDate.getTime());
+        addFoodLauncher.launch(intent);
+    }
+
+    private void showAddMethodSheet() {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        LinearLayout container = new LinearLayout(requireContext());
+        container.setOrientation(LinearLayout.VERTICAL);
+        int horizontalPadding = (int) dpToPx(22f);
+        int verticalPadding = (int) dpToPx(10f);
+        container.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
+
+        TextView title = createSheetText(getString(R.string.meal_add_method_title), 18, true);
+        container.addView(title);
+
+        TextView manual = createSheetText(getString(R.string.meal_add_manual), 16, false);
+        manual.setOnClickListener(v -> {
+            dialog.dismiss();
+            openMealAddActivity();
+        });
+        container.addView(manual);
+
+        TextView recognition = createSheetText(getString(R.string.meal_add_recognition), 16, false);
+        recognition.setOnClickListener(v -> {
+            dialog.dismiss();
+            openFoodRecognitionActivity();
+        });
+        container.addView(recognition);
+
+        dialog.setContentView(container);
+        dialog.show();
+    }
+
+    private TextView createSheetText(String text, int sp, boolean bold) {
+        TextView textView = new TextView(requireContext());
+        textView.setText(text);
+        textView.setTextSize(sp);
+        textView.setTextColor(getResources().getColor(R.color.home_text_primary, requireContext().getTheme()));
+        textView.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        textView.setMinHeight((int) dpToPx(bold ? 48f : 52f));
+        if (bold) {
+            textView.setTypeface(textView.getTypeface(), android.graphics.Typeface.BOLD);
+        }
+        return textView;
     }
 
     private void onDateSelected(Calendar selectedCalendar) {
