@@ -26,6 +26,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 import com.example.food.R;
+import com.example.food.data.preferences.UserSessionPreferences;
 import com.example.food.data.repository.FoodRepository;
 import com.example.food.data.repository.MealRepository;
 import com.example.food.db.entity.Food;
@@ -292,18 +293,37 @@ public class FoodRecognitionActivity extends AppCompatActivity {
         }
 
         setLoading(true, null);
-        foodRepository.findBestMatchByName(foodName, food -> {
+        UserSessionPreferences session = new UserSessionPreferences(this);
+
+        // 根据登录状态选择查找范围
+        FoodRepository.Callback<Food> findCallback = food -> {
             if (food != null) {
                 insertMealRecord(food, amount, selectedMealType());
                 return;
             }
 
             Food recognizedFood = buildFoodForSave(foodName);
+            // 非管理员用户标记为私有食物 + 用户分享来源
+            if (session.isLoggedIn() && !session.isAdmin()) {
+                recognizedFood.setUserId(session.getUserId());
+                recognizedFood.setSource("USER");
+                recognizedFood.setSourceUserName(session.getUsername());
+                recognizedFood.setVisibilityStatus(2); // 默认为私密
+            } else {
+                recognizedFood.setSource("SYSTEM");
+                recognizedFood.setVisibilityStatus(1);
+            }
             foodRepository.insertFoodReturningId(recognizedFood, id -> {
                 recognizedFood.setId(id.intValue());
                 insertMealRecord(recognizedFood, amount, selectedMealType());
             });
-        });
+        };
+
+        if (session.isLoggedIn() && !session.isAdmin()) {
+            foodRepository.findBestMatchByNameForUser(foodName, session.getUserId(), findCallback);
+        } else {
+            foodRepository.findBestMatchByName(foodName, findCallback);
+        }
     }
 
     private Food buildFoodForSave(String foodName) {
@@ -350,6 +370,11 @@ public class FoodRecognitionActivity extends AppCompatActivity {
                 nutrition.getMonounsaturatedFat(),
                 nutrition.getPolyunsaturatedFat()
         );
+
+        UserSessionPreferences sessionPrefs = new UserSessionPreferences(this);
+        if (sessionPrefs.isLoggedIn()) {
+            record.setUserId(sessionPrefs.getUserId());
+        }
 
         mealRepository.insert(record, () -> {
             setLoading(false, null);

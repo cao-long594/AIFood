@@ -3,6 +3,7 @@ package com.example.food.db.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -22,6 +23,21 @@ public class Food implements Parcelable {
     private int unit;
     private int unitAmount;
     private String category;
+
+    @ColumnInfo(name = "userId")
+    private Integer userId;  // null = 公共食物, non-null = 用户私有食物
+
+    @ColumnInfo(name = "source")
+    private String source;   // "SYSTEM" = 系统导入/管理员导入, "USER" = 用户分享
+
+    @ColumnInfo(name = "sourceUserName")
+    private String sourceUserName; // 分享食物的用户名, null 表示系统导入
+
+    @ColumnInfo(name = "visibilityStatus")
+    private int visibilityStatus = 1; // 1=公开, 2=私密
+
+    @ColumnInfo(name = "existStatus")
+    private int existStatus = 1; // 1=未删除, 2=已删除
 
     public Food(String name, double calories, double carbohydrate, double protein,
                 double fat, double saturatedFat, double monounsaturatedFat,
@@ -73,6 +89,15 @@ public class Food implements Parcelable {
                 int unit, int unitAmount) {
         this(id, name, calories, carbohydrate, protein, fat, saturatedFat,
                 monounsaturatedFat, polyunsaturatedFat, unit, unitAmount, null);
+    }
+
+    @Ignore
+    public Food(String name, double calories, double carbohydrate, double protein,
+                double fat, double saturatedFat, double monounsaturatedFat,
+                double polyunsaturatedFat, int unit, int unitAmount, String category, Integer userId) {
+        this(name, calories, carbohydrate, protein, fat, saturatedFat, monounsaturatedFat,
+                polyunsaturatedFat, unit, unitAmount, category);
+        this.userId = userId;
     }
 
     public int getId() {
@@ -171,6 +196,21 @@ public class Food implements Parcelable {
         this.category = category;
     }
 
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
+
+    public String getSource() { return source; }
+    public void setSource(String source) { this.source = source; }
+
+    public String getSourceUserName() { return sourceUserName; }
+    public void setSourceUserName(String sourceUserName) { this.sourceUserName = sourceUserName; }
+
+    public int getVisibilityStatus() { return visibilityStatus; }
+    public void setVisibilityStatus(int visibilityStatus) { this.visibilityStatus = visibilityStatus; }
+
+    public int getExistStatus() { return existStatus; }
+    public void setExistStatus(int existStatus) { this.existStatus = existStatus; }
+
     protected Food(Parcel in) {
         id = in.readInt();
         name = in.readString();
@@ -184,6 +224,12 @@ public class Food implements Parcelable {
         unit = in.readInt();
         unitAmount = in.readInt();
         category = in.readString();
+        int tmpUserId = in.readInt();
+        userId = tmpUserId == -1 ? null : tmpUserId;
+        source = in.readString();
+        sourceUserName = in.readString();
+        visibilityStatus = in.readInt();
+        existStatus = in.readInt();
     }
 
     public static final Creator<Food> CREATOR = new Creator<Food>() {
@@ -217,6 +263,11 @@ public class Food implements Parcelable {
         dest.writeInt(unit);
         dest.writeInt(unitAmount);
         dest.writeString(category);
+        dest.writeInt(userId != null ? userId : -1);
+        dest.writeString(source);
+        dest.writeString(sourceUserName);
+        dest.writeInt(visibilityStatus);
+        dest.writeInt(existStatus);
     }
 
     @Override

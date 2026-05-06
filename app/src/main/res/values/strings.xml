@@ -76,4 +76,38 @@
     <string name="food_update_success">更新成功</string>
     <string name="food_add_success">添加成功</string>
     <string name="food_number_invalid">请输入有效的数值</string>
+
+    <!-- Login -->
+    <string name="login_title">登录</string>
+    <string name="login_username_hint">账号</string>
+    <string name="login_password_hint">密码</string>
+    <string name="login_role_label">选择登录身份</string>
+    <string name="login_role_user">普通用户</string>
+    <string name="login_role_admin">管理员</string>
+    <string name="login_button">登录</string>
+    <string name="login_error_empty">请输入账号和密码</string>
+    <string name="login_error_failed">账号或密码错误</string>
+
+    <!-- Admin -->
+    <string name="admin_title">管理后台</string>
+    <string name="admin_tab_users">用户管理</string>
+    <string name="admin_tab_foods">食物库管理</string>
+    <string name="admin_logout">退出登录</string>
+    <string name="admin_add_user">添加用户</string>
+    <string name="admin_delete_user_confirm">确定要删除用户 %1$s 吗？</string>
+    <string name="admin_delete_self_error">不能删除自己</string>
+    <string name="admin_delete_last_admin_error">至少保留一个管理员</string>
+    <string name="admin_user_added">用户已添加</string>
+    <string name="admin_user_deleted">用户已删除</string>
+    <string name="admin_user_toggled">用户状态已更新</string>
+    <string name="admin_promote_to_public">设为公开</string>
+    <string name="admin_promote_success">已设为公开食物</string>
+    <string name="admin_food_owner_public">公开</string>
+    <string name="admin_food_owner_user">用户 #%1$d</string>
+    <string name="admin_delete_food_confirm">确定要删除食物 %1$s 吗？</string>
+    <string name="admin_users_empty">暂无用户</string>
+
+    <!-- Logout -->
+    <string name="action_logout">退出登录</string>
+    <string name="logout_confirm">确定要退出登录吗？</string>
 </resources>

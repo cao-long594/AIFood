@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.food.R;
+import com.example.food.data.preferences.UserSessionPreferences;
 import com.example.food.data.repository.FoodRepository;
 import com.example.food.db.entity.Food;
 import com.example.food.utils.Constants;
@@ -28,6 +29,8 @@ public class AddFoodActivity extends AppCompatActivity {
 
     private FoodRepository foodRepository;
     private int foodId = -1;
+    private boolean isReadOnly = false;
+    private android.view.View btnSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +44,13 @@ public class AddFoodActivity extends AppCompatActivity {
         initViews();
         foodRepository = new FoodRepository(this);
 
+        btnSave = findViewById(R.id.btn_save);
+
         if (foodId != -1) {
             loadFoodData();
         }
 
-        findViewById(R.id.btn_save).setOnClickListener(v -> saveFood());
+        btnSave.setOnClickListener(v -> saveFood());
         findViewById(R.id.btn_cancel).setOnClickListener(v -> finish());
     }
 
@@ -67,6 +72,20 @@ public class AddFoodActivity extends AppCompatActivity {
             if (food == null) {
                 return;
             }
+
+            // 判断是否有修改权限：管理员可改所有，普通用户只能改自己未公开的私有食物
+            UserSessionPreferences session = new UserSessionPreferences(this);
+            if (session.isLoggedIn() && !session.isAdmin()) {
+                boolean isOwner = food.getUserId() != null && food.getUserId() == session.getUserId();
+                boolean isStillPrivate = food.getVisibilityStatus() == 2;
+                isReadOnly = !(isOwner && isStillPrivate);
+            }
+
+            if (isReadOnly) {
+                btnSave.setVisibility(android.view.View.GONE);
+                setAllFieldsReadOnly(true);
+            }
+
             nameEditText.setText(food.getName());
             caloriesEditText.setText(String.valueOf(food.getCalories()));
             carbsEditText.setText(String.valueOf(food.getCarbohydrate()));
@@ -86,7 +105,28 @@ public class AddFoodActivity extends AppCompatActivity {
         });
     }
 
+    private void setAllFieldsReadOnly(boolean readOnly) {
+        nameEditText.setEnabled(!readOnly);
+        caloriesEditText.setEnabled(!readOnly);
+        carbsEditText.setEnabled(!readOnly);
+        proteinEditText.setEnabled(!readOnly);
+        fatEditText.setEnabled(!readOnly);
+        saturatedFatEditText.setEnabled(!readOnly);
+        monoUnsaturatedFatEditText.setEnabled(!readOnly);
+        polyUnsaturatedFatEditText.setEnabled(!readOnly);
+        for (int i = 0; i < unitRadioGroup.getChildCount(); i++) {
+            unitRadioGroup.getChildAt(i).setEnabled(!readOnly);
+        }
+        for (int i = 0; i < categoryRadioGroup.getChildCount(); i++) {
+            categoryRadioGroup.getChildAt(i).setEnabled(!readOnly);
+        }
+    }
+
     private void saveFood() {
+        if (isReadOnly) {
+            Toast.makeText(this, "无修改权限", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String name = nameEditText.getText().toString().trim();
         if (name.isEmpty()) {
             Toast.makeText(this, R.string.food_add_name_required, Toast.LENGTH_SHORT).show();
@@ -109,24 +149,28 @@ public class AddFoodActivity extends AppCompatActivity {
             String category = selectedCategory();
 
             if (foodId != -1) {
-                Food updatedFood = new Food(
-                        foodId,
-                        name,
-                        calories,
-                        carbs,
-                        protein,
-                        fat,
-                        saturatedFat,
-                        monoUnsaturatedFat,
-                        polyUnsaturatedFat,
-                        unit,
-                        unitAmount,
-                        category
-                );
+                // 修改模式：先加载已有数据，再更新可编辑字段，保留其他字段
+                foodRepository.getFoodById(foodId, existing -> {
+                    if (existing == null) {
+                        Toast.makeText(AddFoodActivity.this, "食物数据不存在", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    existing.setName(name);
+                    existing.setCalories(calories);
+                    existing.setCarbohydrate(carbs);
+                    existing.setProtein(protein);
+                    existing.setFat(fat);
+                    existing.setSaturatedFat(saturatedFat);
+                    existing.setMonounsaturatedFat(monoUnsaturatedFat);
+                    existing.setPolyunsaturatedFat(polyUnsaturatedFat);
+                    existing.setUnit(unit);
+                    existing.setUnitAmount(unitAmount);
+                    existing.setCategory(category);
 
-                foodRepository.updateFood(updatedFood, () -> {
-                    Toast.makeText(AddFoodActivity.this, R.string.food_update_success, Toast.LENGTH_SHORT).show();
-                    finish();
+                    foodRepository.updateFood(existing, () -> {
+                        Toast.makeText(AddFoodActivity.this, R.string.food_update_success, Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
                 });
             } else {
                 Food newFood = new Food(
@@ -142,6 +186,18 @@ public class AddFoodActivity extends AppCompatActivity {
                         unitAmount,
                         category
                 );
+
+                // 标记来源：非管理员=用户分享+私密，管理员=系统导入+公开
+                UserSessionPreferences session = new UserSessionPreferences(this);
+                if (session.isLoggedIn() && !session.isAdmin()) {
+                    newFood.setUserId(session.getUserId());
+                    newFood.setSource("USER");
+                    newFood.setSourceUserName(session.getUsername());
+                    newFood.setVisibilityStatus(2);
+                } else {
+                    newFood.setSource("SYSTEM");
+                    newFood.setVisibilityStatus(1);
+                }
 
                 foodRepository.insertFood(newFood, () -> {
                     Toast.makeText(AddFoodActivity.this, R.string.food_add_success, Toast.LENGTH_SHORT).show();

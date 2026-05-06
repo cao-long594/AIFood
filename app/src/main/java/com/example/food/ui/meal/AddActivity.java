@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food.R;
+import com.example.food.data.preferences.UserSessionPreferences;
 import com.example.food.data.repository.FoodRepository;
 import com.example.food.data.repository.MealRepository;
 import com.example.food.db.entity.Food;
@@ -90,7 +91,12 @@ public class AddActivity extends AppCompatActivity implements OnFoodClickListene
     }
 
     private void loadAllFoods() {
-        foodRepository.loadAllFoods(foods -> updateFoodList(foods, false));
+        UserSessionPreferences session = new UserSessionPreferences(this);
+        if (session.isLoggedIn() && !session.isAdmin()) {
+            foodRepository.loadAllFoodsForUser(session.getUserId(), foods -> updateFoodList(foods, false));
+        } else {
+            foodRepository.loadAllFoods(foods -> updateFoodList(foods, false));
+        }
     }
 
     private void setupSearchView() {
@@ -121,7 +127,12 @@ public class AddActivity extends AppCompatActivity implements OnFoodClickListene
             return;
         }
 
-        foodRepository.searchFoods(keyword, foods -> updateFoodList(foods, true));
+        UserSessionPreferences session = new UserSessionPreferences(this);
+        if (session.isLoggedIn() && !session.isAdmin()) {
+            foodRepository.searchFoodsForUser(keyword, session.getUserId(), foods -> updateFoodList(foods, true));
+        } else {
+            foodRepository.searchFoods(keyword, foods -> updateFoodList(foods, true));
+        }
     }
 
     private void updateFoodList(List<Food> foods, boolean isSearchMode) {
@@ -203,6 +214,11 @@ public class AddActivity extends AppCompatActivity implements OnFoodClickListene
                 nutrition.getMonounsaturatedFat(),
                 nutrition.getPolyunsaturatedFat()
         );
+
+        UserSessionPreferences sessionPrefs = new UserSessionPreferences(this);
+        if (sessionPrefs.isLoggedIn()) {
+            record.setUserId(sessionPrefs.getUserId());
+        }
 
         mealRepository.insert(record, () -> {
             Toast.makeText(this,

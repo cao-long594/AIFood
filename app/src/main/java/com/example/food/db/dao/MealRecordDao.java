@@ -49,5 +49,11 @@ public interface MealRecordDao {
      */
     @Query("SELECT * FROM meal_records WHERE date >= :startInclusive AND date < :endExclusive ORDER BY date ASC, mealType ASC")
     List<MealRecord> getRecordsByDateRange(Date startInclusive, Date endExclusive);
+
+    /**
+     * 查询指定用户指定时间区间内的记录
+     */
+    @Query("SELECT * FROM meal_records WHERE userId = :userId AND date >= :startInclusive AND date < :endExclusive ORDER BY date ASC, mealType ASC")
+    List<MealRecord> getRecordsByDateRangeForUser(Date startInclusive, Date endExclusive, int userId);
 }
 

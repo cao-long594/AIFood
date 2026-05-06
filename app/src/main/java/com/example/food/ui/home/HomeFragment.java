@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.food.R;
+import com.example.food.data.preferences.UserSessionPreferences;
 import com.example.food.model.NutritionCalculator;
 import com.example.food.model.UserGoal;
 import com.example.food.ui.common.SelectedDateViewModel;
@@ -191,7 +192,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void initViewModel() {
-        homeViewModel = new HomeViewModel(requireContext());
+        UserSessionPreferences session = new UserSessionPreferences(requireContext());
+        homeViewModel = new HomeViewModel(requireContext(), session.getUserId());
         userGoal = homeViewModel.getUserGoal();
 
         // ── Task 1: init shared date ViewModel ────────────────────────────────
@@ -423,11 +425,11 @@ public class HomeFragment extends Fragment {
     private String getMacroDialogTitle(MetricType metricType) {
         switch (metricType) {
             case CARB:
-                return "\u8bbe\u7f6e\u78b3\u6c34\u76ee\u6807";
+                return "\u78b3\u6c34\u76ee\u6807";
             case PROTEIN:
-                return "\u8bbe\u7f6e\u86cb\u767d\u76ee\u6807";
+                return "\u86cb\u767d\u76ee\u6807";
             case FAT:
-                return "\u8bbe\u7f6e\u8102\u80aa\u76ee\u6807";
+                return "\u8102\u80aa\u76ee\u6807";
             default:
                 return "\u8bbe\u7f6e\u76ee\u6807";
         }
@@ -436,13 +438,13 @@ public class HomeFragment extends Fragment {
     private String getMacroDialogHint(MetricType metricType) {
         switch (metricType) {
             case CARB:
-                return "璇疯緭鍏ョ⒊姘寸洰鏍?g)";
+                return "推荐摄入：" + String.format(Locale.CHINA, "%.0f", getCurrentMacroGoal(MetricType.CARB)) + " g";
             case PROTEIN:
-                return "璇疯緭鍏ヨ泲鐧界洰鏍?g)";
+                return "推荐摄入：" + String.format(Locale.CHINA, "%.0f", getCurrentMacroGoal(MetricType.PROTEIN)) + " g";
             case FAT:
-                return "璇疯緭鍏ヨ剛鑲洰鏍?g)";
+                return "推荐摄入：" + String.format(Locale.CHINA, "%.0f", getCurrentMacroGoal(MetricType.FAT)) + " g";
             default:
-                return "璇疯緭鍏ョ洰鏍?g)";
+                return "推荐摄入：" + String.format(Locale.CHINA, "%.0f", getCurrentMacroGoal(MetricType.CARB)) + " g";
         }
     }
 

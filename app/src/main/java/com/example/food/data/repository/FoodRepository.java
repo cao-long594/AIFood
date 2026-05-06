@@ -30,7 +30,7 @@ public class FoodRepository {
     public void loadAllFoods(Callback<List<Food>> callback) {
         AppExecutors.runOnIo(() -> {
             FoodSeedImporter.ensureImported(appContext, database);
-            List<Food> foods = foodDao.getAllFoods();
+            List<Food> foods = foodDao.getAllActiveFoods();
             AppExecutors.runOnMain(() -> callback.onResult(foods));
         });
     }
@@ -39,8 +39,8 @@ public class FoodRepository {
         AppExecutors.runOnIo(() -> {
             FoodSeedImporter.ensureImported(appContext, database);
             List<Food> foods = (keyword == null || keyword.trim().isEmpty())
-                    ? foodDao.getAllFoods()
-                    : foodDao.searchFoods(keyword.trim());
+                    ? foodDao.getAllActiveFoods()
+                    : foodDao.searchActiveFoods(keyword.trim());
             AppExecutors.runOnMain(() -> callback.onResult(foods));
         });
     }
@@ -103,6 +103,90 @@ public class FoodRepository {
         AppExecutors.runOnIo(() -> {
             foodDao.update(food);
             AppExecutors.runOnMain(onComplete);
+        });
+    }
+
+    // ========== 用户可见范围查询 ==========
+
+    public void loadAllFoodsForUser(int userId, Callback<List<Food>> callback) {
+        AppExecutors.runOnIo(() -> {
+            FoodSeedImporter.ensureImported(appContext, database);
+            List<Food> foods = foodDao.getFoodsForUser(userId);
+            AppExecutors.runOnMain(() -> callback.onResult(foods));
+        });
+    }
+
+    public void searchFoodsForUser(String keyword, int userId, Callback<List<Food>> callback) {
+        AppExecutors.runOnIo(() -> {
+            FoodSeedImporter.ensureImported(appContext, database);
+            List<Food> foods = (keyword == null || keyword.trim().isEmpty())
+                    ? foodDao.getFoodsForUser(userId)
+                    : foodDao.searchFoodsForUser(keyword.trim(), userId);
+            AppExecutors.runOnMain(() -> callback.onResult(foods));
+        });
+    }
+
+    public void findBestMatchByNameForUser(String name, int userId, Callback<Food> callback) {
+        AppExecutors.runOnIo(() -> {
+            FoodSeedImporter.ensureImported(appContext, database);
+            String normalizedName = normalizeName(name);
+            Food exactMatch = null;
+            Food containsMatch = null;
+
+            if (!normalizedName.isEmpty()) {
+                List<Food> foods = foodDao.getFoodsForUser(userId);
+                for (Food food : foods) {
+                    String foodName = normalizeName(food.getName());
+                    if (foodName.equals(normalizedName)) {
+                        exactMatch = food;
+                        break;
+                    }
+                    if (containsMatch == null
+                            && (foodName.contains(normalizedName) || normalizedName.contains(foodName))) {
+                        containsMatch = food;
+                    }
+                }
+            }
+
+            Food result = exactMatch != null ? exactMatch : containsMatch;
+            AppExecutors.runOnMain(() -> callback.onResult(result));
+        });
+    }
+
+    // ========== 管理员操作 ==========
+
+    public void promoteToPublic(int foodId, Runnable onComplete) {
+        AppExecutors.runOnIo(() -> {
+            foodDao.setVisibilityPublic(foodId);
+            AppExecutors.runOnMain(onComplete);
+        });
+    }
+
+    public void demoteToAdminOnly(int foodId, Runnable onComplete) {
+        AppExecutors.runOnIo(() -> {
+            foodDao.setVisibilityPrivate(foodId);
+            AppExecutors.runOnMain(onComplete);
+        });
+    }
+
+    public void softDelete(int foodId, Runnable onComplete) {
+        AppExecutors.runOnIo(() -> {
+            foodDao.softDelete(foodId);
+            AppExecutors.runOnMain(onComplete);
+        });
+    }
+
+    public void restoreFood(int foodId, Runnable onComplete) {
+        AppExecutors.runOnIo(() -> {
+            foodDao.restoreFood(foodId);
+            AppExecutors.runOnMain(onComplete);
+        });
+    }
+
+    public void getFoodsByUser(int userId, Callback<List<Food>> callback) {
+        AppExecutors.runOnIo(() -> {
+            List<Food> foods = foodDao.getFoodsByUser(userId);
+            AppExecutors.runOnMain(() -> callback.onResult(foods));
         });
     }
 

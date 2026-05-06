@@ -31,14 +31,20 @@ public class HomeViewModel {
     private final Context context;
     private final MealRepository mealRepository;
     private final UserGoalPreferences userGoalPreferences;
+    private final int userId;
 
     private UserGoal userGoal;
     private NutritionCalculator.NutritionData todayNutritionData;
 
     public HomeViewModel(Context context) {
+        this(context, -1);
+    }
+
+    public HomeViewModel(Context context, int userId) {
         this.context = context.getApplicationContext();
         this.mealRepository = new MealRepository(this.context);
-        this.userGoalPreferences = new UserGoalPreferences(this.context);
+        this.userGoalPreferences = new UserGoalPreferences(this.context, userId);
+        this.userId = userId;
         loadUserGoal();
         todayNutritionData = new NutritionCalculator.NutritionData();
     }
@@ -50,7 +56,18 @@ public class HomeViewModel {
         DateRange range = calculateVisibleRange(safeSelectedDate, granularity);
         String displayTitle = buildDisplayTitle(safeSelectedDate, granularity, range);
 
-        mealRepository.getRecordsByDateRange(range.startInclusive, range.endExclusive, records -> {
+        if (userId > 0) {
+            mealRepository.getRecordsByDateRangeForUser(range.startInclusive, range.endExclusive, userId, records -> {
+                onRecordsLoaded(records, safeSelectedDate, granularity, range, displayTitle, listener);
+            });
+        } else {
+            mealRepository.getRecordsByDateRange(range.startInclusive, range.endExclusive, records -> {
+                onRecordsLoaded(records, safeSelectedDate, granularity, range, displayTitle, listener);
+            });
+        }
+    }
+
+    private void onRecordsLoaded(List<MealRecord> records, Date safeSelectedDate, TimeGranularity granularity, DateRange range, String displayTitle, OnHomeUiStateLoadedListener listener) {
             NutritionCalculator.NutritionData dayNutritionData = new NutritionCalculator.NutritionData();
             FatRatioData fatRatioData = new FatRatioData();
             PeriodSeries periodSeries = null;
@@ -77,7 +94,6 @@ public class HomeViewModel {
             if (listener != null) {
                 listener.onStateLoaded(state);
             }
-        });
     }
 
     private DateRange calculateVisibleRange(Date selectedDate, TimeGranularity granularity) {

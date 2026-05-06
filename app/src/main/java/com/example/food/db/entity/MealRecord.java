@@ -35,6 +35,8 @@ public class MealRecord {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
+    @ColumnInfo(name = "userId")
+    private Integer userId; // 用户ID, null=旧数据兼容
     private int foodId; // 食物ID
     private String foodName; // 食物名称
     private double amount; // 摄入量(克或毫升)
@@ -79,6 +81,9 @@ public class MealRecord {
     public void setId(int id) {
         this.id = id;
     }
+
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
 
     public int getFoodId() {
         return foodId;

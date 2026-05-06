@@ -1,14 +1,23 @@
 package com.example.food;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.food.data.preferences.UserSessionPreferences;
 import com.example.food.ui.home.HomeFragment;
 import com.example.food.ui.meal.MealFragment;
 import com.example.food.ui.foodbank.FoodBankFragment;
+import com.example.food.ui.login.LoginActivity;
+import com.example.food.ui.profile.ProfileFragment;
+import com.example.food.ui.water.WaterFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
@@ -40,20 +49,18 @@ public class MainActivity extends AppCompatActivity {
         FragmentStateAdapter adapter = new FragmentStateAdapter(this) {
             @Override
             public int getItemCount() {
-                return 3;
+                return 5;
             }
 
             @Override
             public androidx.fragment.app.Fragment createFragment(int position) {
                 switch (position) {
-                    case 0:
-                        return new HomeFragment();
-                    case 1:
-                        return new MealFragment();
-                    case 2:
-                        return new FoodBankFragment();
-                    default:
-                        return new HomeFragment();
+                    case 0: return new HomeFragment();
+                    case 1: return new MealFragment();
+                    case 2: return new WaterFragment();
+                    case 3: return new FoodBankFragment();
+                    case 4: return new ProfileFragment();
+                    default: return new HomeFragment();
                 }
             }
         };
@@ -75,11 +82,42 @@ public class MainActivity extends AppCompatActivity {
                         bottomNavigationView.setSelectedItemId(R.id.nav_meal);
                         break;
                     case 2:
+                        bottomNavigationView.setSelectedItemId(R.id.nav_water);
+                        break;
+                    case 3:
                         bottomNavigationView.setSelectedItemId(R.id.nav_foodbank);
+                        break;
+                    case 4:
+                        bottomNavigationView.setSelectedItemId(R.id.nav_profile);
                         break;
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_logout) {
+            logout();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+        UserSessionPreferences session = new UserSessionPreferences(this);
+        session.clearSession();
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void setupBottomNavigation() {
@@ -92,8 +130,14 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_meal) {
                 viewPager.setCurrentItem(1, false);
                 return true;
-            } else if (id == R.id.nav_foodbank) {
+            } else if (id == R.id.nav_water) {
                 viewPager.setCurrentItem(2, false);
+                return true;
+            } else if (id == R.id.nav_foodbank) {
+                viewPager.setCurrentItem(3, false);
+                return true;
+            } else if (id == R.id.nav_profile) {
+                viewPager.setCurrentItem(4, false);
                 return true;
             }
             return false;

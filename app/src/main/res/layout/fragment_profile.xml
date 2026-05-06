@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/token_bg_primary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 用户编号卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp">
+
+                <TextView
+                    android:id="@+id/tv_user_number_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="用户编号"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_user_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="------"
+                    android:textColor="@color/token_primary"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_display_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text=""
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 个人信息卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="个人信息"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <View style="@style/profile_divider" />
+                <!-- 用户名 -->
+                <LinearLayout style="@style/profile_field_row">
+                    <TextView style="@style/profile_label" android:text="用户名" />
+                    <TextView android:id="@+id/tv_username" style="@style/profile_value" android:text="--" />
+                </LinearLayout>
+                <View style="@style/profile_divider" />
+                <!-- 手机号 -->
+                <LinearLayout style="@style/profile_field_row">
+                    <TextView style="@style/profile_label" android:text="手机号" />
+                    <TextView android:id="@+id/tv_phone" style="@style/profile_value" android:text="--" />
+                </LinearLayout>
+                <View style="@style/profile_divider" />
+                <!-- 性别 -->
+                <LinearLayout style="@style/profile_field_row">
+                    <TextView style="@style/profile_label" android:text="性别" />
+                    <TextView android:id="@+id/tv_gender" style="@style/profile_value" android:text="未设置" />
+                </LinearLayout>
+                <View style="@style/profile_divider" />
+                <!-- 年龄 -->
+                <LinearLayout style="@style/profile_field_row">
+                    <TextView style="@style/profile_label" android:text="年龄" />
+                    <TextView android:id="@+id/tv_age" style="@style/profile_value" android:text="未设置" />
+                </LinearLayout>
+                <View style="@style/profile_divider" />
+                <!-- 身高 -->
+                <LinearLayout style="@style/profile_field_row">
+                    <TextView style="@style/profile_label" android:text="身高" />
+                    <TextView android:id="@+id/tv_height" style="@style/profile_value" android:text="未设置" />
+                </LinearLayout>
+                <View style="@style/profile_divider" />
+                <!-- 体重 -->
+                <LinearLayout style="@style/profile_field_row">
+                    <TextView style="@style/profile_label" android:text="体重" />
+                    <TextView android:id="@+id/tv_weight" style="@style/profile_value" android:text="未设置" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 每日建议摄入 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="建议每日摄入热量"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_daily_calorie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="完善信息后自动计算"
+                    android:textColor="@color/token_primary"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="千卡/天"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 三大营养素建议摄入 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_macro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="建议营养素分配"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/pie_chart_macro"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="20dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_macro_carb"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="碳水：--g"
+                            android:textColor="@color/token_carb"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tv_macro_protein"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="蛋白质：--g"
+                            android:textColor="@color/token_protein"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tv_macro_fat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="脂肪：--g"
+                            android:textColor="@color/token_fat"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 编辑按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_edit_profile"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:text="编辑资料"
+            app:cornerRadius="12dp" />
+
+        <!-- 退出登录 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_logout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="32dp"
+            android:text="退出登录"
+            android:textColor="@color/token_fat"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/token_fat"
+            app:strokeWidth="1dp"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
+
+    </LinearLayout>
+
+</ScrollView>

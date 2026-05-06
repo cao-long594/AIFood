@@ -44,6 +44,11 @@ public class Constants {
     public static final double DEFAULT_FAT_GOAL = 60.0;
     public static final double DEFAULT_WATER_GOAL = 2000.0;
 
+    // 推荐摄入值（从个人页同步）
+    public static final String PREF_RECOMMENDED_CARB = "recommended_carb";
+    public static final String PREF_RECOMMENDED_PROTEIN = "recommended_protein";
+    public static final String PREF_RECOMMENDED_FAT = "recommended_fat";
+
     // 营养素参考占比
     public static final double CARBOHYDRATE_REF_MIN = 45.0; // 碳水参考最小值(%)
     public static final double CARBOHYDRATE_REF_MAX = 65.0; // 碳水参考最大值(%)

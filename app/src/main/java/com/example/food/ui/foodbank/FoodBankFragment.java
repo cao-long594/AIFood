@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food.R;
+import com.example.food.data.preferences.UserSessionPreferences;
 import com.example.food.data.repository.FoodRepository;
 import com.example.food.db.entity.Food;
 
@@ -106,13 +107,23 @@ public class FoodBankFragment extends Fragment {
     }
 
     private void loadFoods() {
-        foodRepository.loadAllFoods(foods -> updateFoodList(foods, false));
+        UserSessionPreferences session = new UserSessionPreferences(requireContext());
+        if (session.isLoggedIn() && !session.isAdmin()) {
+            foodRepository.loadAllFoodsForUser(session.getUserId(), foods -> updateFoodList(foods, false));
+        } else {
+            foodRepository.loadAllFoods(foods -> updateFoodList(foods, false));
+        }
     }
 
     private void searchFoods(String query) {
         String trimmed = query == null ? "" : query.trim();
         boolean isSearchMode = !trimmed.isEmpty();
-        foodRepository.searchFoods(trimmed, foods -> updateFoodList(foods, isSearchMode));
+        UserSessionPreferences session = new UserSessionPreferences(requireContext());
+        if (session.isLoggedIn() && !session.isAdmin()) {
+            foodRepository.searchFoodsForUser(trimmed, session.getUserId(), foods -> updateFoodList(foods, isSearchMode));
+        } else {
+            foodRepository.searchFoods(trimmed, foods -> updateFoodList(foods, isSearchMode));
+        }
     }
 
     private void updateFoodList(List<Food> foods, boolean isSearchMode) {

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food.R;
+import com.example.food.data.preferences.UserSessionPreferences;
 import com.example.food.data.repository.FoodRepository;
 import com.example.food.data.repository.MealRepository;
 import com.example.food.db.entity.MealRecord;
@@ -102,7 +103,21 @@ public class MealShowFragment extends Fragment {
         Date startOfDay = DateUtils.getDateStart(selectedDate);
         Date endOfDay = DateUtils.getDateEnd(selectedDate);
 
-        mealRepository.getRecordsByDateRange(startOfDay, endOfDay, allRecords -> {
+        UserSessionPreferences sessionPrefs = new UserSessionPreferences(requireContext());
+        int uid = sessionPrefs.getUserId();
+
+        if (uid > 0) {
+            mealRepository.getRecordsByDateRangeForUser(startOfDay, endOfDay, uid, allRecords -> {
+                processMealRecords(allRecords);
+            });
+        } else {
+            mealRepository.getRecordsByDateRange(startOfDay, endOfDay, allRecords -> {
+                processMealRecords(allRecords);
+            });
+        }
+    }
+
+    private void processMealRecords(List<MealRecord> allRecords) {
             List<MealRecord> filteredRecords = new ArrayList<>();
             double todayTotalCalories = 0;
 
@@ -123,7 +138,6 @@ public class MealShowFragment extends Fragment {
             addedRecords.addAll(filteredRecords);
             emptyFoodsTextView.setVisibility(filteredRecords.isEmpty() ? View.VISIBLE : View.GONE);
             updateNutritionData(totalCalories);
-        });
     }
 
     private void updateNutritionData(double todayTotalCalories) {

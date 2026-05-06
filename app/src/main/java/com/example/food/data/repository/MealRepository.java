@@ -30,6 +30,13 @@ public class MealRepository {
         });
     }
 
+    public void getRecordsByDateRangeForUser(Date startInclusive, Date endExclusive, int userId, Callback<List<MealRecord>> callback) {
+        AppExecutors.runOnIo(() -> {
+            List<MealRecord> records = mealRecordDao.getRecordsByDateRangeForUser(startInclusive, endExclusive, userId);
+            AppExecutors.runOnMain(() -> callback.onResult(records));
+        });
+    }
+
     public void insert(MealRecord record, Runnable onComplete) {
         AppExecutors.runOnIo(() -> {
             mealRecordDao.insert(record);

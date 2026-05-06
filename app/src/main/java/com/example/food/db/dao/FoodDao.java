@@ -48,4 +48,47 @@ public interface FoodDao {
 
     @Query("UPDATE foods SET unit = CASE WHEN unit = 1 THEN 0 WHEN unit = 2 THEN 1 ELSE unit END")
     void migrateUnitValuesToV2();
+
+    // ========== 用户可见范围查询 ==========
+
+    @Query("SELECT * FROM foods WHERE existStatus = 1 AND (visibilityStatus = 1 OR (visibilityStatus = 2 AND userId = :userId)) ORDER BY name ASC")
+    List<Food> getFoodsForUser(int userId);
+
+    @Query("SELECT * FROM foods WHERE existStatus = 1 AND (visibilityStatus = 1 OR (visibilityStatus = 2 AND userId = :userId)) AND name LIKE '%' || :keyword || '%' ORDER BY name ASC")
+    List<Food> searchFoodsForUser(String keyword, int userId);
+
+    @Query("SELECT f.* FROM foods f INNER JOIN (SELECT foodId, MAX(created_at) AS last_used FROM meal_records GROUP BY foodId ORDER BY last_used DESC LIMIT :limit) recent ON recent.foodId = f.id WHERE f.existStatus = 1 AND (f.visibilityStatus = 1 OR (f.visibilityStatus = 2 AND f.userId = :userId)) ORDER BY recent.last_used DESC")
+    List<Food> getRecentFoodsForUser(int limit, int userId);
+
+    @Query("SELECT * FROM foods WHERE existStatus = 1 AND category = :category AND (visibilityStatus = 1 OR (visibilityStatus = 2 AND userId = :userId)) ORDER BY name ASC")
+    List<Food> getFoodsByCategoryForUser(String category, int userId);
+
+    // ========== 管理员操作（基于存在状态和可见性状态） ==========
+
+    @Query("UPDATE foods SET visibilityStatus = 1 WHERE id = :foodId")
+    void setVisibilityPublic(int foodId);
+
+    @Query("UPDATE foods SET visibilityStatus = 2 WHERE id = :foodId")
+    void setVisibilityPrivate(int foodId);
+
+    @Query("UPDATE foods SET existStatus = 2 WHERE id = :foodId")
+    void softDelete(int foodId);
+
+    @Query("UPDATE foods SET existStatus = 1 WHERE id = :foodId")
+    void restoreFood(int foodId);
+
+    @Query("SELECT * FROM foods WHERE existStatus = 1 ORDER BY name ASC")
+    List<Food> getAllActiveFoods();
+
+    @Query("SELECT * FROM foods WHERE existStatus = 1 AND name LIKE '%' || :keyword || '%' ORDER BY name ASC")
+    List<Food> searchActiveFoods(String keyword);
+
+    @Query("SELECT * FROM foods WHERE userId = :userId AND existStatus = 1 ORDER BY name ASC")
+    List<Food> getFoodsByUser(int userId);
+
+    @Query("SELECT * FROM foods WHERE source = :source AND existStatus = 1 ORDER BY name ASC")
+    List<Food> getFoodsBySource(String source);
+
+    @Query("SELECT u.username FROM foods f JOIN users u ON f.userId = u.id WHERE f.id = :foodId")
+    String getFoodOwnerUsername(int foodId);
 }
