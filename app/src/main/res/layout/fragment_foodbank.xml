@@ -68,19 +68,19 @@
             android:paddingBottom="132dp" />
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ImageButton
         android:id="@+id/btn_add_food"
-        android:layout_width="@dimen/ui_fab_size"
-        android:layout_height="@dimen/ui_fab_size"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/ui_fab_margin"
         android:layout_marginBottom="@dimen/ui_fab_margin"
+        android:background="@android:color/transparent"
         android:contentDescription="@string/fab_add_food_desc"
-        android:src="@drawable/ic_plus_24"
-        app:backgroundTint="@color/primary_color"
-        app:borderWidth="0dp"
-        app:elevation="0dp"
-        app:maxImageSize="24dp"
-        app:tint="@color/white" />
+        android:elevation="10dp"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:padding="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/water_add_button" />
 
 </FrameLayout>

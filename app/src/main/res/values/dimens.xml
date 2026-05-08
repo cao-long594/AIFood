@@ -11,6 +11,5 @@
     <dimen name="ui_text_title">28sp</dimen>
     <dimen name="ui_text_body">14sp</dimen>
     <dimen name="ui_text_caption">12sp</dimen>
-    <dimen name="ui_text_metric">52sp</dimen>
     <dimen name="ui_text_metric_sm">24sp</dimen>
 </resources>

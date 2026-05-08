@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="18dp"
+        android:layout_height="match_parent">
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="#BFEADD" />
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:background="@drawable/water_record_timeline_dot" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_record_time"
+        android:layout_width="54dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:text="08:30"
+        android:textColor="@color/home_text_secondary"
+        android:textSize="16sp" />
+
+    <FrameLayout
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/water_record_drop_bg">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:contentDescription="饮水记录"
+            android:src="@drawable/water_ic_drop" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_record_amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="end"
+        android:text="200 ml"
+        android:textColor="@color/token_primary"
+        android:textSize="19sp" />
+
+    <TextView
+        android:id="@+id/btn_delete_record"
+        android:layout_width="42dp"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:text="删除"
+        android:textColor="#D66B70"
+        android:textSize="12sp" />
+</LinearLayout>

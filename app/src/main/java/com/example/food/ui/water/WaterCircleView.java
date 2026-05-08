@@ -8,6 +8,9 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
+import com.example.food.R;
 
 /**
  * 饮水环形进度圈
@@ -23,11 +26,11 @@ public class WaterCircleView extends View {
 
     public WaterCircleView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        bgPaint.setColor(0xFFFFFFFF); // 纯白底色
+        bgPaint.setColor(ContextCompat.getColor(context, R.color.home_ring_track));
         bgPaint.setStyle(Paint.Style.STROKE);
         bgPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        progressPaint.setColor(0xFF00B75E); // 绿色进度
+        progressPaint.setColor(ContextCompat.getColor(context, R.color.primary_color));
         progressPaint.setStyle(Paint.Style.STROKE);
         progressPaint.setStrokeCap(Paint.Cap.ROUND);
     }
@@ -56,10 +59,8 @@ public class WaterCircleView extends View {
         float cy = getHeight() / 2f;
         float radius = size / 2f - bgPaint.getStrokeWidth() / 2f;
 
-        // 白色底圈
         canvas.drawCircle(cx, cy, radius, bgPaint);
 
-        // 绿色进度弧
         float sweep = progress * 360f;
         if (sweep > 0) {
             canvas.drawArc(arcRect, -90, sweep, false, progressPaint);

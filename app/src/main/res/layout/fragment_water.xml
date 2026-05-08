@@ -1,190 +1,397 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/token_bg_primary"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/home_page_background"
+    tools:ignore="HardcodedText">
 
-    <!-- 饮水目标 -->
-    <com.google.android.material.card.MaterialCardView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="@dimen/ui_page_horizontal"
+        android:paddingTop="18dp"
+        android:paddingEnd="@dimen/ui_page_horizontal"
+        android:paddingBottom="132dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="饮水"
+                    android:textColor="@color/home_text_primary"
+                    android:textSize="34sp" />
+
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="通知"
+                        android:src="@drawable/profile_ic_bell" />
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="11dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/profile_notification_dot" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="今日饮水"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
+                android:layout_height="46dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/water_date_pill_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
-            <FrameLayout
-                android:id="@+id/water_circle_container"
-                android:layout_width="160dp"
-                android:layout_height="160dp"
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:contentDescription="日期"
+                    android:src="@drawable/profile_ic_calendar" />
+
+                <TextView
+                    android:id="@+id/tv_water_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="今天"
+                    android:textColor="@color/home_text_primary"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="展开日期"
+                    android:src="@drawable/water_ic_down" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="188dp"
                 android:layout_marginTop="16dp"
-                android:layout_gravity="center_horizontal"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless">
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-                <com.example.food.ui.water.WaterCircleView
-                    android:id="@+id/water_circle"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:id="@+id/water_circle_container"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="今日饮水背景"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/water_card_illustration" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/water_card_overlay" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingStart="18dp"
+                        android:paddingTop="18dp"
+                        android:paddingEnd="18dp"
+                        android:paddingBottom="18dp">
+
+                        <LinearLayout
+                            android:layout_width="268dp"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_water_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="今日饮水"
+                                android:textColor="#FFFFFF"
+                                android:textSize="17sp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="14dp"
+                                android:baselineAligned="true"
+                                android:gravity="bottom"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/tv_water_amount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:includeFontPadding="false"
+                                    android:text="0"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="48sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginBottom="7dp"
+                                    android:text="ml"
+                                    android:textColor="#F4FFFB"
+                                    android:textSize="17sp" />
+
+                                <TextView
+                                    android:id="@+id/tv_water_goal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:layout_marginBottom="8dp"
+                                    android:text="/ 2,000 ml"
+                                    android:textColor="#F4FFFB"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+
+                            <ProgressBar
+                                android:id="@+id/progress_water"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="220dp"
+                                android:layout_height="8dp"
+                                android:layout_marginTop="18dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressDrawable="@drawable/water_progress_drawable" />
+
+                            <Space
+                                android:layout_width="1dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:contentDescription="饮水提示"
+                                    android:src="@drawable/water_ic_drop_white" />
+
+                                <TextView
+                                    android:id="@+id/tv_water_hint"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:layout_weight="1"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
+                                    android:text="继续保持，距离目标还差 800 ml"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_water_progress"
+                            android:layout_width="56dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="end|center_vertical"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="22dp"
+                            android:background="@drawable/water_progress_badge_bg"
+                            android:gravity="center"
+                            android:text="0%"
+                            android:textColor="@color/token_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:alignmentMode="alignBounds"
+                android:columnCount="4">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_water_100"
+                    style="@style/WaterQuickButton"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="+100\nml"
+                    app:icon="@drawable/water_ic_glass" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_water_200"
+                    style="@style/WaterQuickButton"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="+200\nml"
+                    app:icon="@drawable/water_ic_glass" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_water_300"
+                    style="@style/WaterQuickButton"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="+300\nml"
+                    app:icon="@drawable/water_ic_glass" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_water_500"
+                    style="@style/WaterQuickButton"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="+500\nml"
+                    app:icon="@drawable/water_ic_bottle" />
+            </GridLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="128dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/home_surface"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
 
-                    <TextView
-                        android:id="@+id/tv_water_amount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/token_primary"
-                        android:textSize="36sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ml"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tv_water_goal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="目标 2000ml"
-                        android:textColor="@color/token_label_tertiary"
-                        android:textSize="11sp" />
-
+                    <include layout="@layout/item_water_stat_cups" />
+                    <include layout="@layout/item_water_stat_average" />
+                    <include layout="@layout/item_water_stat_frequency" />
+                    <include layout="@layout/item_water_stat_rate" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            </FrameLayout>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- 快捷添加 -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="快速记录"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:orientation="horizontal">
+                android:layout_marginBottom="18dp"
+                app:cardBackgroundColor="@color/home_surface"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_water_100"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    android:text="100ml"
-                    android:textColor="@color/token_primary"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/token_primary" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="18dp"
+                    android:paddingTop="18dp"
+                    android:paddingEnd="18dp"
+                    android:paddingBottom="16dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_water_200"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginHorizontal="4dp"
-                    android:text="200ml"
-                    android:textColor="@color/token_primary"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/token_primary" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_water_300"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:text="300ml"
-                    android:textColor="@color/token_primary"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/token_primary" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="今日记录"
+                            android:textColor="@color/home_text_primary"
+                            android:textSize="20sp" />
 
-            </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="查看更多"
+                            android:textColor="@color/token_primary"
+                            android:textSize="14sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:gravity="center">
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginStart="4dp"
+                            android:contentDescription="查看更多"
+                            android:src="@drawable/water_ic_more" />
+                    </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_water_500"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    android:text="500ml"
-                    android:textColor="@color/token_primary"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/token_primary" />
+                    <TextView
+                        android:id="@+id/tv_empty_records"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:gravity="center"
+                        android:text="今天还没有饮水记录"
+                        android:textColor="@color/home_text_secondary"
+                        android:textSize="@dimen/ui_text_body"
+                        android:visibility="gone" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_custom_water"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:text="自定义"
-                    android:textColor="@color/token_primary"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/token_primary" />
-
-            </LinearLayout>
-
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_water_records"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
+    </ScrollView>
 
-    </com.google.android.material.card.MaterialCardView>
-
-</LinearLayout>
+    <ImageButton
+        android:id="@+id/btn_custom_water"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="自定义添加饮水"
+        android:elevation="10dp"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:padding="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/water_add_button" />
+</FrameLayout>

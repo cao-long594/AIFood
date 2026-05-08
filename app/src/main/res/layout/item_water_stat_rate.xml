@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WaterStatItem">
+    <ImageView style="@style/WaterStatIcon" android:contentDescription="达标率" android:src="@drawable/water_ic_target" />
+    <TextView style="@style/WaterStatLabel" android:text="达标率" />
+    <TextView android:id="@+id/tv_water_rate" style="@style/WaterStatValue" android:text="0%" />
+</LinearLayout>

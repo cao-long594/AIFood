@@ -22,13 +22,13 @@ public class CalorieCircleView extends View {
 
     // 榛樿鍊?
     private static final int DEFAULT_MAX_CALORIES = 3300;
-    private static final int DEFAULT_BG_COLOR = Color.parseColor("#394298");
-    private static final int DEFAULT_PROGRESS_COLOR = Color.parseColor("#4CAF50");
+    private static final int DEFAULT_BG_COLOR = Color.parseColor("#D7E8DD");
+    private static final int DEFAULT_PROGRESS_COLOR = Color.parseColor("#0E9F6E");
     private static final int DEFAULT_TEXT_COLOR = Color.parseColor("#333333");
     private static final float DEFAULT_STROKE_WIDTH = 25f;
     private static final long DEFAULT_ANIMATION_DURATION = 1500;
     private static final float DEFAULT_GLOW_RADIUS = 8f;
-    private static final int DEFAULT_GLOW_COLOR = Color.parseColor("#804CAF50");
+    private static final int DEFAULT_GLOW_COLOR = Color.parseColor("#660E9F6E");
     private static final float DEFAULT_FROSTED_ALPHA = 0.3f;
     private static final int DEFAULT_FROSTED_COLOR = Color.parseColor("#FFFFFF");
     private static final float DEFAULT_FROSTED_BLUR = 5f;

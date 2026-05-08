@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 管理员 - 食物库管理页面
@@ -139,16 +140,14 @@ public class FoodManagementFragment extends Fragment {
     }
 
     private void applyFilters() {
-        String query = searchView.getQuery() != null ? searchView.getQuery().toString().trim() : "";
+        String query = searchView.getQuery() != null
+                ? searchView.getQuery().toString().trim().toLowerCase(Locale.CHINA) : "";
         filteredList = new ArrayList<>();
 
         for (Food f : foodList) {
-            // 搜索过滤
-            if (!query.isEmpty() && !f.getName().toLowerCase().contains(query.toLowerCase())) continue;
-            // 可见性过滤（基于 visibilityStatus）
+            if (!query.isEmpty() && !f.getName().toLowerCase(Locale.CHINA).contains(query)) continue;
             if ("公开".equals(visibilityFilter) && f.getVisibilityStatus() != 1) continue;
             if ("非公开".equals(visibilityFilter) && f.getVisibilityStatus() == 1) continue;
-            // 来源过滤
             if ("系统导入".equals(sourceFilter) && !"SYSTEM".equals(f.getSource())) continue;
             if ("用户分享".equals(sourceFilter) && !"USER".equals(f.getSource())) continue;
 
@@ -176,14 +175,9 @@ public class FoodManagementFragment extends Fragment {
     }
 
     private void demoteToPrivate(Food food) {
-        boolean isSystemFood = "SYSTEM".equals(food.getSource());
-        String msg = isSystemFood
-                ? "将 \"" + food.getName() + "\" 设为私密。"
-                : "将 \"" + food.getName() + "\" 设为私密。";
-
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("设为私密")
-                .setMessage(msg)
+                .setMessage("将 \"" + food.getName() + "\" 设为私密。")
                 .setNegativeButton("取消", null)
                 .setPositiveButton("确定降级", (d, w) -> {
                     foodRepository.demoteToAdminOnly(food.getId(), () -> {

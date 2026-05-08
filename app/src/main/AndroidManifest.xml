@@ -5,6 +5,10 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -36,6 +40,10 @@
         <activity
             android:name=".ui.foodbank.AddFoodActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.profile.ProfileEditActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.history.HistoryActivity"
             android:exported="false" />

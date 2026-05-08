@@ -80,6 +80,7 @@ public class HomeFragment extends Fragment {
     private TextView carbIntakeGoalTextView;
     private TextView proteinIntakeGoalTextView;
     private TextView fatIntakeGoalTextView;
+    private TextView calorieCardPercentageTextView;
     private TextView progressPercentageTextView;
     private TextView completionLabelTextView;
     private TextView fatRatioTextView;
@@ -141,6 +142,7 @@ public class HomeFragment extends Fragment {
         carbCaloriesTextView = root.findViewById(R.id.tv_carb_calories);
         proteinCaloriesTextView = root.findViewById(R.id.tv_protein_calories);
         fatCaloriesTextView = root.findViewById(R.id.tv_fat_calories);
+        calorieCardPercentageTextView = root.findViewById(R.id.tv_calorie_progress_percentage);
         progressPercentageTextView = root.findViewById(R.id.tv_completion_percentage);
         completionLabelTextView = root.findViewById(R.id.tv_completion_label);
         fatRatioTextView = root.findViewById(R.id.tv_fat_ratio);
@@ -337,6 +339,7 @@ public class HomeFragment extends Fragment {
     private void updateCalorieProgressCard(double currentCalories, double targetCalories) {
         int progressPercentage = clampPercent(targetCalories <= 0 ? 0 : (currentCalories / targetCalories) * 100);
         mainCalorieProgressBar.setProgress(progressPercentage);
+        calorieCardPercentageTextView.setText(String.format(Locale.CHINA, "%d%%", progressPercentage));
         progressPercentageTextView.setText(String.format(Locale.CHINA, "%d%%", progressPercentage));
         completionLabelTextView.setText(getString(R.string.home_completion_label));
     }
@@ -670,12 +673,12 @@ public class HomeFragment extends Fragment {
 
     private String buildCalorieStatusText(double remainingCalories) {
         if (remainingCalories > 0) {
-            return "继续吃吧" + formatNumber(remainingCalories) + " kcal";
+            return "还可以吃 " + formatNumber(remainingCalories) + " kcal";
         }
         if (remainingCalories < 0) {
-            return "超标太超标了" + formatNumber(Math.abs(remainingCalories)) + " kcal";
+            return "已超过目标 " + formatNumber(Math.abs(remainingCalories)) + " kcal";
         }
-        return "恰好达标，您真是古希腊掌管卡路里的神";
+        return "恰好达标，继续保持";
     }
 
     private String buildFatCompositionText(double saturated, double mono, double poly) {
@@ -684,17 +687,17 @@ public class HomeFragment extends Fragment {
         double safePoly = Math.max(0d, poly);
 
         if (safeSat == 0d && safeMono == 0d && safePoly == 0d) {
-            return "饱:单?多?0:0:0";
+            return "饱:单:多 = 0:0:0";
         }
         if (safeSat > 0d) {
-            return "饱:单?多?1:" + formatRatioValue(safeMono / safeSat) + ":" + formatRatioValue(safePoly / safeSat);
+            return "饱:单:多 = 1:" + formatRatioValue(safeMono / safeSat) + ":" + formatRatioValue(safePoly / safeSat);
         }
         if (safeMono >= safePoly) {
             double ratioPoly = safeMono == 0d ? 0d : safePoly / safeMono;
-            return "饱:单?多?0:1:" + formatRatioValue(ratioPoly);
+            return "饱:单:多 = 0:1:" + formatRatioValue(ratioPoly);
         }
         double ratioMono = safePoly == 0d ? 0d : safeMono / safePoly;
-        return "饱:单?多?0:" + formatRatioValue(ratioMono) + ":1";
+        return "饱:单:多 = 0:" + formatRatioValue(ratioMono) + ":1";
     }
 
     private String formatRatioValue(double value) {

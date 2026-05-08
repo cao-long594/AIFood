@@ -2,40 +2,34 @@
 <resources>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="token_primary">#6B4EFF</color>
-    <color name="token_primary_bg">#EBEBFF</color>
-    <color name="token_carb">#A78BFA</color>
+    <color name="token_primary">#0E9F6E</color>
+    <color name="token_primary_bg">#E7F7EF</color>
+    <color name="token_primary_bg_strong">#CFF0DF</color>
+    <color name="token_carb">#2F80ED</color>
     <color name="token_protein">#F59E0B</color>
-    <color name="token_fat">#F87171</color>
-    <color name="token_label_primary">#FF000000</color>
-    <color name="token_label_secondary">#993C3C43</color>
-    <color name="token_label_tertiary">#4D3C3C43</color>
-    <color name="token_separator">#C6C6C8</color>
-    <color name="token_bg_primary">#F2F2F7</color>
+    <color name="token_fat">#F9735B</color>
+    <color name="token_label_primary">#17201A</color>
+    <color name="token_label_secondary">#9965726A</color>
+    <color name="token_label_tertiary">#664D5A52</color>
+    <color name="token_separator">#DDE5DE</color>
+    <color name="token_bg_primary">#F5F8F3</color>
     <color name="token_bg_secondary">#FFFFFFFF</color>
-    <color name="token_bg_tertiary">#F2F2F7</color>
+    <color name="token_bg_tertiary">#EDF4EE</color>
 
     <color name="primary_color">@color/token_primary</color>
-    <color name="secondary_color">@color/token_bg_tertiary</color>
-
-    <color name="mint_primary">#00B75E</color>
+    <color name="mint_primary">#11B981</color>
 
     <color name="saturated_fat">#F87171</color>
     <color name="mono_unsaturated_fat">#F59E0B</color>
-    <color name="poly_unsaturated_fat">#34D399</color>
+    <color name="poly_unsaturated_fat">#22C55E</color>
 
     <color name="text_primary">@color/token_label_primary</color>
     <color name="text_secondary">@color/token_label_secondary</color>
-    <color name="text_hint">@color/token_label_tertiary</color>
     <color name="color_divider">@color/token_separator</color>
-    <color name="background_gray">@color/token_bg_primary</color>
 
     <color name="carb_color">@color/token_carb</color>
     <color name="protein_color">@color/token_protein</color>
     <color name="fat_color">@color/token_fat</color>
-
-    <color name="Checked">#CE4040</color>
-    <color name="Unchecked">#160101</color>
 
     <color name="home_page_background">@color/token_bg_primary</color>
     <color name="home_surface">@color/token_bg_secondary</color>
@@ -43,12 +37,11 @@
     <color name="home_text_primary">@color/token_label_primary</color>
     <color name="home_text_secondary">@color/token_label_secondary</color>
     <color name="home_text_tertiary">@color/token_label_tertiary</color>
-    <color name="home_text_inverse_soft">#DCD7FF</color>
     <color name="home_divider">@color/token_separator</color>
-    <color name="home_progress_track">#D8D7F4</color>
+    <color name="home_progress_track">#D7E8DD</color>
     <color name="home_ring_track">@color/token_primary_bg</color>
 
     <color name="history_future_text">#B5B5B5</color>
-    <color name="history_week_current_fill">#E9E0FF</color>
+    <color name="history_week_current_fill">#DDF4E8</color>
 
 </resources>

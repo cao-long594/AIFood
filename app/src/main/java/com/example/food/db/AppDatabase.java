@@ -16,7 +16,7 @@ import com.example.food.db.entity.Food;
 import com.example.food.db.entity.MealRecord;
 import com.example.food.db.entity.User;
 
-@Database(entities = {Food.class, MealRecord.class, User.class}, version = 11, exportSchema = false)
+@Database(entities = {Food.class, MealRecord.class, User.class}, version = 12, exportSchema = false)
 @TypeConverters(DateTypeConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "food_app_database";
@@ -162,13 +162,73 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_11_12 = new Migration(11, 12) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("PRAGMA defer_foreign_keys = TRUE");
+            database.execSQL("CREATE TABLE IF NOT EXISTS `foods_new` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`name` TEXT, " +
+                    "`calories` REAL NOT NULL, " +
+                    "`carbohydrate` REAL NOT NULL, " +
+                    "`protein` REAL NOT NULL, " +
+                    "`fat` REAL NOT NULL, " +
+                    "`saturatedFat` REAL NOT NULL, " +
+                    "`monounsaturatedFat` REAL NOT NULL, " +
+                    "`polyunsaturatedFat` REAL NOT NULL, " +
+                    "`unit` INTEGER NOT NULL, " +
+                    "`unitAmount` INTEGER NOT NULL, " +
+                    "`category` TEXT, " +
+                    "`userId` INTEGER, " +
+                    "`source` TEXT, " +
+                    "`sourceUserName` TEXT, " +
+                    "`visibilityStatus` INTEGER NOT NULL, " +
+                    "`existStatus` INTEGER NOT NULL)");
+            database.execSQL("INSERT INTO `foods_new` (`id`, `name`, `calories`, `carbohydrate`, `protein`, `fat`, " +
+                    "`saturatedFat`, `monounsaturatedFat`, `polyunsaturatedFat`, `unit`, `unitAmount`, `category`, " +
+                    "`userId`, `source`, `sourceUserName`, `visibilityStatus`, `existStatus`) " +
+                    "SELECT `id`, `name`, `calories`, `carbohydrate`, `protein`, `fat`, " +
+                    "`saturatedFat`, `monounsaturatedFat`, `polyunsaturatedFat`, `unit`, `unitAmount`, `category`, " +
+                    "`userId`, `source`, `sourceUserName`, COALESCE(`visibilityStatus`, 1), COALESCE(`existStatus`, 1) FROM `foods`");
+            database.execSQL("DROP TABLE `foods`");
+            database.execSQL("ALTER TABLE `foods_new` RENAME TO `foods`");
+
+            database.execSQL("CREATE TABLE IF NOT EXISTS `users_new` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`username` TEXT, " +
+                    "`password` TEXT, " +
+                    "`role` TEXT, " +
+                    "`enabled` INTEGER NOT NULL, " +
+                    "`userNumber` TEXT, " +
+                    "`phone` TEXT, " +
+                    "`displayName` TEXT, " +
+                    "`height` REAL, " +
+                    "`weight` REAL, " +
+                    "`age` INTEGER, " +
+                    "`gender` TEXT, " +
+                    "`existStatus` INTEGER, " +
+                    "`goal` INTEGER)");
+            database.execSQL("INSERT INTO `users_new` (`id`, `username`, `password`, `role`, `enabled`, `userNumber`, " +
+                    "`phone`, `displayName`, `height`, `weight`, `age`, `gender`, `existStatus`, `goal`) " +
+                    "SELECT `id`, `username`, `password`, `role`, `enabled`, `userNumber`, " +
+                    "`phone`, `displayName`, `height`, `weight`, `age`, `gender`, `existStatus`, `goal` FROM `users`");
+            database.execSQL("DROP TABLE `users`");
+            database.execSQL("ALTER TABLE `users_new` RENAME TO `users`");
+            database.execSQL("UPDATE `users` SET `userNumber` = NULL WHERE `userNumber` IS NOT NULL " +
+                    "AND `id` NOT IN (SELECT MIN(`id`) FROM `users` WHERE `userNumber` IS NOT NULL GROUP BY `userNumber`)");
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_users_username` ON `users` (`username`)");
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_users_phone` ON `users` (`phone`)");
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_users_userNumber` ON `users` (`userNumber`)");
+        }
+    };
+
     public static AppDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (AppDatabase.class) {
                 if (instance == null) {
                     instance = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, DATABASE_NAME)
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
                             .fallbackToDestructiveMigration()
                             .build();
                 }

@@ -8,7 +8,9 @@ import com.example.food.db.UserSeedImporter;
 import com.example.food.db.dao.UserDao;
 import com.example.food.db.entity.User;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 用户仓库
@@ -160,10 +162,12 @@ public class UserRepository {
      */
     public void generateUserNumber(Callback<String> callback) {
         AppExecutors.runOnIo(() -> {
-            java.time.LocalDate now = java.time.LocalDate.now();
-            String prefix = String.format("%d%02d", now.getYear(), now.getMonthValue());
+            Calendar now = Calendar.getInstance(Locale.CHINA);
+            String prefix = String.format(Locale.CHINA, "%d%02d",
+                    now.get(Calendar.YEAR),
+                    now.get(Calendar.MONTH) + 1);
             int count = userDao.getUserCountByMonth(prefix);
-            String userNumber = prefix + String.format("%03d", count + 1);
+            String userNumber = prefix + String.format(Locale.CHINA, "%03d", count + 1);
             AppExecutors.runOnMain(() -> callback.onResult(userNumber));
         });
     }

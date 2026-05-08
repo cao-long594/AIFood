@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/token_bg_primary"
+    android:background="@drawable/auth_background"
     android:fillViewport="true">
 
     <LinearLayout
@@ -18,6 +18,8 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_marginTop="80dp"
+            android:background="@drawable/auth_logo_bg"
+            android:padding="12dp"
             android:src="@mipmap/ic_launcher"
             android:importantForAccessibility="no" />
 
@@ -46,6 +48,10 @@
             android:layout_marginTop="48dp"
             android:hint="账号"
             app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusTopStart="14dp"
             app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -63,6 +69,10 @@
             android:layout_marginTop="16dp"
             android:hint="密码"
             app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusTopStart="14dp"
             app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -109,6 +119,7 @@
             android:layout_marginTop="24dp"
             android:text="登录"
             android:textSize="16sp"
+            app:backgroundTint="@color/primary_color"
             app:cornerRadius="16dp" />
 
         <!-- 注册链接 -->

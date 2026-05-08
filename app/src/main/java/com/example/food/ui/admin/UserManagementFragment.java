@@ -172,7 +172,7 @@ public class UserManagementFragment extends Fragment {
 
     private void showEditUserDialog(User user) {
         View dialogView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.dialog_edit_profile, null);
+                .inflate(R.layout.dialog_admin_edit_user, null);
 
         TextInputEditText etDisplayName = dialogView.findViewById(R.id.et_display_name);
         TextInputEditText etHeight = dialogView.findViewById(R.id.et_height);
